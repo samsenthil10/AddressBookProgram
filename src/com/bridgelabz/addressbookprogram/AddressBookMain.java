@@ -12,12 +12,8 @@ public class AddressBookMain {
 		System.out.println();
 		ContactsIF contacts = new ContactsImpl();
 		AddressBook addressBook = new AddressBook(contacts.addContact());
-		System.out.println(addressBook.contact.getFirstName());
-		System.out.println(addressBook.contact.getLastName());
-		System.out.println(addressBook.contact.getCity());
-		System.out.println(addressBook.contact.getState());
-		System.out.println(addressBook.contact.getZip());
-		System.out.println(addressBook.contact.getPhoneNumber());
-		System.out.println(addressBook.contact.getEmail());
+		contacts.printContact(addressBook);
+		contacts.editContact(addressBook);
+		contacts.printContact(addressBook);
 	}
 }
