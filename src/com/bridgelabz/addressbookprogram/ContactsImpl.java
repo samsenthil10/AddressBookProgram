@@ -30,11 +30,8 @@ public class ContactsImpl implements ContactsIF {
 
 		System.out.print("Enter Phone Number: ");
 		String edit = AddressBookMain.scanner.next();
-		if(!edit.equalsIgnoreCase(addressBook.contact.getPhoneNumber())) {
-			System.out.println("Contact Not Found!");
-			System.exit(0);
-		}
-		else {
+		if(edit.equalsIgnoreCase(addressBook.contact.getPhoneNumber())) {
+
 			System.out.println("Choose field to edit:\n[1] First Name\n[2] Last Name\n[3] Address\n[4] City\n[5] State\n[6] Pin Code\n[7] Phone Number\n[8] Email\n[9] Exit");
 			int choice = AddressBookMain.scanner.nextInt();
 			switch(choice) {
@@ -68,6 +65,11 @@ public class ContactsImpl implements ContactsIF {
 			default: System.out.println("Invalid Choice");
 			}
 		}
+		else {
+
+			System.out.println("Contact Not Found!");
+			System.exit(0);
+		}
 	}
 
 	@Override
@@ -75,12 +77,13 @@ public class ContactsImpl implements ContactsIF {
 
 		System.out.print("Enter Phone Number: ");
 		String delete = AddressBookMain.scanner.next();
-		if(!delete.equalsIgnoreCase(addressBook.contact.getPhoneNumber())) {
-			System.out.println("Contact Not Found!");
-			System.exit(0);
+		if(delete.equalsIgnoreCase(addressBook.contact.getPhoneNumber())) {
+			addressBook.contact = null;
 		}
 		else {
-			addressBook.contact = null;
+
+			System.out.println("Contact Not Found!");
+			System.exit(0);
 		}
 	}
 
