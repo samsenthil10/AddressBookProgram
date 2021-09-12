@@ -71,6 +71,20 @@ public class ContactsImpl implements ContactsIF {
 	}
 
 	@Override
+	public void deleteContact(AddressBook addressBook) {
+
+		System.out.print("Enter Phone Number: ");
+		String delete = AddressBookMain.scanner.next();
+		if(!delete.equalsIgnoreCase(addressBook.contact.getPhoneNumber())) {
+			System.out.println("Contact Not Found!");
+			System.exit(0);
+		}
+		else {
+			addressBook.contact = null;
+		}
+	}
+
+	@Override
 	public void printContact(AddressBook addressBook) {
 
 		System.out.println(addressBook.contact.getFirstName());
