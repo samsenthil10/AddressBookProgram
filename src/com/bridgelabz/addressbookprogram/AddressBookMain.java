@@ -15,5 +15,6 @@ public class AddressBookMain {
 		contacts.printContact(addressBook);
 		contacts.editContact(addressBook);
 		contacts.printContact(addressBook);
+		contacts.deleteContact(addressBook);
 	}
 }
