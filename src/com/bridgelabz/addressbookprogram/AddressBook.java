@@ -1,11 +1,8 @@
 package com.bridgelabz.addressbookprogram;
 
+import java.util.LinkedHashSet;
+
 public class AddressBook {
 	
-	Contacts contact;
-	
-	public AddressBook(Contacts contact) {
-		
-		this.contact = contact;
-	}
+	LinkedHashSet<Contacts> contacts = new LinkedHashSet<>() ;
 }
