@@ -10,11 +10,14 @@ public class AddressBookMain {
 
 		System.out.println("----------Welcome To Address Book Program----------");	
 		System.out.println();
+		AddressBook addressBook = new AddressBook();
 		ContactsIF contacts = new ContactsImpl();
-		AddressBook addressBook = new AddressBook(contacts.addContact());
+		System.out.print("Number Of Contacts:");
+		int numberOfContacts = scanner.nextInt();
+		for(int iterator = 1; iterator<=numberOfContacts; iterator++) {
+			System.out.println("Enter Contact "+iterator+" Details: ");
+			contacts.addContact(addressBook);
+		}
 		contacts.printContact(addressBook);
-		contacts.editContact(addressBook);
-		contacts.printContact(addressBook);
-		contacts.deleteContact(addressBook);
 	}
 }
