@@ -36,8 +36,6 @@ public class ContactsImpl implements ContactsIF {
 			contact.setState(AddressBookMain.scanner.next());
 			System.out.print("Enter Pin Code: ");
 			contact.setZip(AddressBookMain.scanner.next());
-			System.out.print("Enter Phone Number: ");
-			contact.setPhoneNumber(AddressBookMain.scanner.next());
 			System.out.print("Enter E mail: ");
 			contact.setEmail(AddressBookMain.scanner.next());
 			addressBook.contacts.add(contact);
