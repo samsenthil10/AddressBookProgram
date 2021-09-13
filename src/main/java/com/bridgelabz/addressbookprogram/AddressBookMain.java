@@ -32,6 +32,7 @@ public class AddressBookMain {
 		do {
 			int exitFlag=0;
 			System.out.println("[1] Select Active Address Book\n[2] Contact operations\n[3] See contacts in a city or state\n[4] See contacts in all cities or states\n[5] Exit");
+			System.out.print("Enter Choice: "); 
 			int addressChoice = scanner.nextInt();
 			switch(addressChoice) {
 			case 1: addressBook = addressBookOperations.selectActiveAddressBook(addressBooks);
