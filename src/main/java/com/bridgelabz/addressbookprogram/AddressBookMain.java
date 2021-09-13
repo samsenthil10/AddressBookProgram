@@ -31,7 +31,7 @@ public class AddressBookMain {
 		AddressBook addressBook = null;
 		do {
 			int exitFlag=0;
-			System.out.println("[1] Select Active Address Book\n[2] Contact operations\n[3] See contacts in a city or state\n[4] Exit");
+			System.out.println("[1] Select Active Address Book\n[2] Contact operations\n[3] See contacts in a city or state\n[4] See contacts in all cities or states\n[5] Exit");
 			int addressChoice = scanner.nextInt();
 			switch(addressChoice) {
 			case 1: addressBook = addressBookOperations.selectActiveAddressBook(addressBooks);
@@ -72,19 +72,19 @@ public class AddressBookMain {
 					}
 				}
 				break;
-			case 3:case 5:System.out.println("[1]Show contacts in city\n[2]Show contacts in state\n[3]Back");
+			case 3:System.out.println("[1]Show contacts in city\n[2]Show contacts in state\n[3]Back");
 			System.out.print("Enter Choice: "); 
 			int searchChoice = scanner.nextInt();
 			while(exitFlag==0) {
 				switch(searchChoice) {
 				case 1:System.out.print("Enter City: "); 
 				String searchByCity = scanner.next();
-				addressBookOperations.showContactInGivenCity(searchByCity, addressBooks);
+				addressBookOperations.showContactsInGivenCity(searchByCity, addressBooks);
 				exitFlag=1;
 				break;
 				case 2: System.out.print("Enter State: ");  
 				String searchByState = scanner.next();
-				addressBookOperations.showContactInGivenState(searchByState, addressBooks);
+				addressBookOperations.showContactsInGivenState(searchByState, addressBooks);
 				exitFlag=1;
 				break;
 				case 3:exitFlag=1;
@@ -93,7 +93,24 @@ public class AddressBookMain {
 				}
 			}
 			break;
-			case 4: scanner.close(); 
+			case 4:System.out.println("[1]Show contacts in all cities\n[2]Show contacts in all states\n[3]Back");
+			System.out.print("Enter Choice: "); 
+			int printChoice = scanner.nextInt();
+			while(exitFlag==0) {
+				switch(printChoice) {
+				case 1:addressBookOperations.showAllContactsInAllCity(addressBooks);
+				exitFlag=1;
+				break;
+				case 2: addressBookOperations.showAllContactsInAllState(addressBooks);
+				exitFlag=1;
+				break;
+				case 3:exitFlag=1;
+				break;
+				default:System.out.println("Invalid Choice");
+				}
+			}
+			break;
+			case 5: scanner.close(); 
 			System.exit(0);
 			break;
 			default: System.out.println("Invalid Choice!");
