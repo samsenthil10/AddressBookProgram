@@ -98,7 +98,7 @@ public class AddressBookImpl implements AddressBookIF {
 
 			else if(result.getKey()!=null) {
 				emptyFlag=1;
-				System.out.println(result.getKey()+": "+result.getValue());
+				System.out.println("City "+result.getKey()+": Count :"+result.getValue().size()+" Contacts: "+result.getValue());
 			}
 		}
 		if(emptyFlag == 0) {
@@ -128,7 +128,7 @@ public class AddressBookImpl implements AddressBookIF {
 
 			else if(result.getKey()!=null) {
 				emptyFlag=1;
-				System.out.println(result.getKey()+": "+result.getValue());
+				System.out.println("State "+result.getKey()+": Count :"+result.getValue().size()+" Contacts: "+result.getValue());
 			}
 		}
 		if(emptyFlag == 0) {
