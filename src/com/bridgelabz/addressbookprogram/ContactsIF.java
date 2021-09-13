@@ -2,7 +2,7 @@ package com.bridgelabz.addressbookprogram;
 
 public interface ContactsIF {
 
-	public Contacts addContact();
+	public void addContact(AddressBook addressBook);
 	public void editContact(AddressBook addressBook);
 	public void deleteContact(AddressBook addressBook);
 	public void printContact(AddressBook addressBook);

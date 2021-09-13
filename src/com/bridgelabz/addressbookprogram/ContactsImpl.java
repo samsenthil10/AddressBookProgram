@@ -1,9 +1,11 @@
 package com.bridgelabz.addressbookprogram;
 
+import java.util.*;
+
 public class ContactsImpl implements ContactsIF {
 
 	@Override
-	public Contacts addContact() {
+	public void addContact(AddressBook addressBook) {
 
 		Contacts contact = new Contacts();
 		System.out.print("Enter First Name: ");
@@ -22,81 +24,120 @@ public class ContactsImpl implements ContactsIF {
 		contact.setPhoneNumber(AddressBookMain.scanner.next());
 		System.out.print("Enter E mail: ");
 		contact.setEmail(AddressBookMain.scanner.next());
-		return contact;
+		addressBook.contacts.add(contact);
 	}
 
 	@Override
 	public void editContact(AddressBook addressBook) {
 
-		System.out.print("Enter Phone Number: ");
-		String edit = AddressBookMain.scanner.next();
-		if(edit.equalsIgnoreCase(addressBook.contact.getPhoneNumber())) {
-
-			System.out.println("Choose field to edit:\n[1] First Name\n[2] Last Name\n[3] Address\n[4] City\n[5] State\n[6] Pin Code\n[7] Phone Number\n[8] Email\n[9] Exit");
-			int choice = AddressBookMain.scanner.nextInt();
-			switch(choice) {
-
-			case 1: System.out.print("Enter First Name: ");
-			addressBook.contact.setFirstName(AddressBookMain.scanner.next());
-			break;
-			case 2: System.out.print("Enter Last Name: ");
-			addressBook.contact.setLastName(AddressBookMain.scanner.next());
-			break;
-			case 3: System.out.print("Enter Address: ");
-			addressBook.contact.setAddress(AddressBookMain.scanner.next());
-			break;
-			case 4: System.out.print("Enter City: ");
-			addressBook.contact.setCity(AddressBookMain.scanner.next());
-			break;
-			case 5: System.out.print("Enter State: ");
-			addressBook.contact.setState(AddressBookMain.scanner.next());
-			break;
-			case 6: System.out.print("Enter Pin Code: ");
-			addressBook.contact.setZip(AddressBookMain.scanner.next());
-			break;
-			case 7: System.out.print("Enter Phone Number: ");
-			addressBook.contact.setPhoneNumber(AddressBookMain.scanner.next());
-			break;
-			case 8: System.out.print("Enter E mail: ");
-			addressBook.contact.setEmail(AddressBookMain.scanner.next());
-			break;
-			case 9: System.exit(0);
-			break;
-			default: System.out.println("Invalid Choice");
-			}
+		Iterator<Contacts> iterator = addressBook.contacts.iterator();
+		if(iterator.hasNext()==false) {
+			System.out.println("Contacts Empty!");
 		}
 		else {
+			System.out.print("Enter Phone Number: ");
+			String edit = AddressBookMain.scanner.next();
+			Contacts contact = null;
+			while(iterator.hasNext()) {
+				contact = iterator.next();
+				if(edit.equalsIgnoreCase(contact.getPhoneNumber())){
+					break;
+				}
+			}
+			if(contact!=null) {
 
-			System.out.println("Contact Not Found!");
-			System.exit(0);
+				System.out.println("Choose field to edit:\n[1] First Name\n[2] Last Name\n[3] Address\n[4] City\n[5] State\n[6] Pin Code\n[7] Phone Number\n[8] Email\n[9] Exit");
+				int choice = AddressBookMain.scanner.nextInt();
+				switch(choice) {
+
+				case 1: System.out.print("Enter First Name: ");
+				contact.setFirstName(AddressBookMain.scanner.next());
+				break;
+				case 2: System.out.print("Enter Last Name: ");
+				contact.setLastName(AddressBookMain.scanner.next());
+				break;
+				case 3: System.out.print("Enter Address: ");
+				contact.setAddress(AddressBookMain.scanner.next());
+				break;
+				case 4: System.out.print("Enter City: ");
+				contact.setCity(AddressBookMain.scanner.next());
+				break;
+				case 5: System.out.print("Enter State: ");
+				contact.setState(AddressBookMain.scanner.next());
+				break;
+				case 6: System.out.print("Enter Pin Code: ");
+				contact.setZip(AddressBookMain.scanner.next());
+				break;
+				case 7: System.out.print("Enter Phone Number: ");
+				contact.setPhoneNumber(AddressBookMain.scanner.next());
+				break;
+				case 8: System.out.print("Enter E mail: ");
+				contact.setEmail(AddressBookMain.scanner.next());
+				break;
+				case 9: System.exit(0);
+				break;
+				default: System.out.println("Invalid Choice");
+				}
+			}
+			else {
+
+				System.out.println("Contact Not Found!");
+				System.exit(0);
+			}
 		}
+
 	}
 
 	@Override
 	public void deleteContact(AddressBook addressBook) {
 
-		System.out.print("Enter Phone Number: ");
-		String delete = AddressBookMain.scanner.next();
-		if(delete.equalsIgnoreCase(addressBook.contact.getPhoneNumber())) {
-			addressBook.contact = null;
-		}
+		Iterator<Contacts> iterator = addressBook.contacts.iterator();
+		if(iterator.hasNext() == false) {
+			System.out.println("Contacts empty!");
+		}		
 		else {
+			System.out.print("Enter Phone Number: ");
+			String delete = AddressBookMain.scanner.next();
 
-			System.out.println("Contact Not Found!");
-			System.exit(0);
+			Contacts contact = null;
+			while(iterator.hasNext()) {
+				contact = iterator.next();
+				if(delete.equalsIgnoreCase(contact.getPhoneNumber())){
+					break;
+				}
+			}
+			if(contact!=null) {
+				addressBook.contacts.remove(contact);
+			}
+			else {
+
+				System.out.println("Contact Not Found!");
+				System.exit(0);
+			}
 		}
 	}
 
 	@Override
 	public void printContact(AddressBook addressBook) {
 
-		System.out.println(addressBook.contact.getFirstName());
-		System.out.println(addressBook.contact.getLastName());
-		System.out.println(addressBook.contact.getAddress());
-		System.out.println(addressBook.contact.getCity());
-		System.out.println(addressBook.contact.getState());
-		System.out.println(addressBook.contact.getZip());
-		System.out.println(addressBook.contact.getPhoneNumber());
-		System.out.println(addressBook.contact.getEmail());
+		Iterator<Contacts> iterator = addressBook.contacts.iterator();
+		if(iterator.hasNext() == false) {
+			System.out.println("Contacts empty!");
+		}
+		else {
+			while(iterator.hasNext()){
+				Contacts contact = iterator.next();
+				System.out.println();
+				System.out.println(contact.getFirstName());
+				System.out.println(contact.getLastName());
+				System.out.println(contact.getAddress());
+				System.out.println(contact.getCity());
+				System.out.println(contact.getState());
+				System.out.println(contact.getZip());
+				System.out.println(contact.getPhoneNumber());
+				System.out.println(contact.getEmail());
+				System.out.println();	
+			} 
+		}
 	}
 }
