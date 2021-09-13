@@ -43,7 +43,7 @@ public class AddressBookMain {
 				while(exitFlag == 0) {
 
 					System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
-					System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Exit");
+					System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Back");
 					int contactsChoice = scanner.nextInt();
 					switch(contactsChoice) {
 					case 1:  
