@@ -1,5 +1,6 @@
 package com.bridgelabz.addressbookprogram;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -30,5 +31,45 @@ public class AddressBookImpl implements AddressBookIF {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public void showContactInGivenCity(String enteredCity, Map<String, AddressBook> addressBooks) {
+
+		int emptyFlag=0;
+		System.out.println("City: "+enteredCity);
+		for (Entry<String, AddressBook> entry : addressBooks.entrySet()) {
+			Iterator<Contacts> iterator = entry.getValue().contacts.iterator();
+			while(iterator.hasNext()) {
+				Contacts contact = iterator.next();
+				if(contact == null)
+					continue;
+				if(contact.getCity().equalsIgnoreCase(enteredCity)) {
+					emptyFlag=1;
+					System.out.println(contact.getFirstName()+" "+contact.getLastName());
+				}					
+			}
+		}
+		if(emptyFlag == 0)
+			System.out.println("No Contacts Found!");
+	}
+
+	@Override
+	public void showContactInGivenState(String enteredState, Map<String, AddressBook> addressBooks) {
+
+		int emptyFlag=0;
+		System.out.println("State: "+enteredState);
+		for (Entry<String, AddressBook> entry : addressBooks.entrySet()) {
+			Iterator<Contacts> iterator = entry.getValue().contacts.iterator();
+			while(iterator.hasNext()) {
+				Contacts contact = iterator.next();
+				if(contact.getState().equalsIgnoreCase(enteredState)) {
+					emptyFlag=1;
+					System.out.println(contact.getFirstName()+" "+contact.getLastName());
+				}					
+			}
+		}
+		if(emptyFlag == 0)
+			System.out.println("No Contacts Found!");
 	}
 }
