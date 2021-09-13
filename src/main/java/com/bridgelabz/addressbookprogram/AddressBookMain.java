@@ -14,6 +14,11 @@ public class AddressBookMain {
 		System.out.println();
 		System.out.print("Number Of Address Books:");
 		int numberOfAddressBooks = scanner.nextInt();
+		if(numberOfAddressBooks <= 0) {
+			System.out.println("No Address Books Found");
+			System.exit(0);
+		}
+
 		Map<String, AddressBook> addressBooks = new HashMap<String, AddressBook>();
 		for(int iterator = 1; iterator<=numberOfAddressBooks; iterator++) {
 			System.out.print("Name of Address Books "+iterator+":");
@@ -26,7 +31,7 @@ public class AddressBookMain {
 		AddressBook addressBook = null;
 		do {
 			int exitFlag=0;
-			System.out.println("[1] Select Active Address Book\n[2] Contact operations\n[3] Exit");
+			System.out.println("[1] Select Active Address Book\n[2] Contact operations\n[3] See contacts in a city or state\n[4] Exit");
 			int addressChoice = scanner.nextInt();
 			switch(addressChoice) {
 			case 1: addressBook = addressBookOperations.selectActiveAddressBook(addressBooks);
@@ -44,6 +49,7 @@ public class AddressBookMain {
 
 					System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
 					System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Back");
+					System.out.print("Enter Choice: "); 
 					int contactsChoice = scanner.nextInt();
 					switch(contactsChoice) {
 					case 1:  
@@ -66,7 +72,28 @@ public class AddressBookMain {
 					}
 				}
 				break;
-			case 3: scanner.close(); 
+			case 3:case 5:System.out.println("[1]Show contacts in city\n[2]Show contacts in state\n[3]Back");
+			System.out.print("Enter Choice: "); 
+			int searchChoice = scanner.nextInt();
+			while(exitFlag==0) {
+				switch(searchChoice) {
+				case 1:System.out.print("Enter City: "); 
+				String searchByCity = scanner.next();
+				addressBookOperations.showContactInGivenCity(searchByCity, addressBooks);
+				exitFlag=1;
+				break;
+				case 2: System.out.print("Enter State: ");  
+				String searchByState = scanner.next();
+				addressBookOperations.showContactInGivenState(searchByState, addressBooks);
+				exitFlag=1;
+				break;
+				case 3:exitFlag=1;
+				break;
+				default:System.out.println("Invalid Choice");
+				}
+			}
+			break;
+			case 4: scanner.close(); 
 			System.exit(0);
 			break;
 			default: System.out.println("Invalid Choice!");
