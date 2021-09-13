@@ -4,27 +4,44 @@ import java.util.*;
 
 public class ContactsImpl implements ContactsIF {
 
+	@Override 
+	public boolean equals(String enteredPhoneNumber, AddressBook addressBook) {
+		Iterator<Contacts> iterator = addressBook.contacts.iterator();
+		while(iterator.hasNext())
+			if(enteredPhoneNumber.equalsIgnoreCase(iterator.next().getPhoneNumber()))
+				return true; 
+		return false;
+	}
+
 	@Override
 	public void addContact(AddressBook addressBook) {
 
 		Contacts contact = new Contacts();
-		System.out.print("Enter First Name: ");
-		contact.setFirstName(AddressBookMain.scanner.next());
-		System.out.print("Enter Last Name: ");
-		contact.setLastName(AddressBookMain.scanner.next());
-		System.out.print("Enter Address: ");
-		contact.setAddress(AddressBookMain.scanner.next());
-		System.out.print("Enter City: ");
-		contact.setCity(AddressBookMain.scanner.next());
-		System.out.print("Enter State: ");
-		contact.setState(AddressBookMain.scanner.next());
-		System.out.print("Enter Pin Code: ");
-		contact.setZip(AddressBookMain.scanner.next());
 		System.out.print("Enter Phone Number: ");
-		contact.setPhoneNumber(AddressBookMain.scanner.next());
-		System.out.print("Enter E mail: ");
-		contact.setEmail(AddressBookMain.scanner.next());
-		addressBook.contacts.add(contact);
+		String phoneNumber = AddressBookMain.scanner.next();
+		if(equals(phoneNumber,addressBook)==true){
+			System.out.println("Contact already exits!");
+		}
+		else {
+			contact.setPhoneNumber(phoneNumber);
+			System.out.print("Enter First Name: ");
+			contact.setFirstName(AddressBookMain.scanner.next());
+			System.out.print("Enter Last Name: ");
+			contact.setLastName(AddressBookMain.scanner.next());
+			System.out.print("Enter Address: ");
+			contact.setAddress(AddressBookMain.scanner.next());
+			System.out.print("Enter City: ");
+			contact.setCity(AddressBookMain.scanner.next());
+			System.out.print("Enter State: ");
+			contact.setState(AddressBookMain.scanner.next());
+			System.out.print("Enter Pin Code: ");
+			contact.setZip(AddressBookMain.scanner.next());
+			System.out.print("Enter Phone Number: ");
+			contact.setPhoneNumber(AddressBookMain.scanner.next());
+			System.out.print("Enter E mail: ");
+			contact.setEmail(AddressBookMain.scanner.next());
+			addressBook.contacts.add(contact);
+		}	
 	}
 
 	@Override
@@ -46,7 +63,7 @@ public class ContactsImpl implements ContactsIF {
 			}
 			if(contact!=null) {
 
-				System.out.println("Choose field to edit:\n[1] First Name\n[2] Last Name\n[3] Address\n[4] City\n[5] State\n[6] Pin Code\n[7] Phone Number\n[8] Email\n[9] Exit");
+				System.out.println("Choose field to edit:\n[1] First Name\n[2] Last Name\n[3] Address\n[4] City\n[5] State\n[6] Pin Code\n[7] Phone Number\n[8] Email\n[9] Back");
 				int choice = AddressBookMain.scanner.nextInt();
 				switch(choice) {
 
@@ -82,7 +99,6 @@ public class ContactsImpl implements ContactsIF {
 			else {
 
 				System.out.println("Contact Not Found!");
-				System.exit(0);
 			}
 		}
 
@@ -112,7 +128,6 @@ public class ContactsImpl implements ContactsIF {
 			else {
 
 				System.out.println("Contact Not Found!");
-				System.exit(0);
 			}
 		}
 	}
