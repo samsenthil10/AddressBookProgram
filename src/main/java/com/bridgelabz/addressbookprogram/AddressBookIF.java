@@ -10,4 +10,5 @@ public interface AddressBookIF {
 	public void showContactsInGivenState(String enteredState, Map<String, AddressBook> addressBooks);
 	public void showAllContactsInAllCity(Map<String, AddressBook> addressBooks);
 	public void showAllContactsInAllState(Map<String, AddressBook> addressBooks);
+	public void console();
 }
