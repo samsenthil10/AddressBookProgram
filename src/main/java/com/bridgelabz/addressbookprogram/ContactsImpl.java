@@ -4,22 +4,15 @@ import java.util.*;
 
 public class ContactsImpl implements ContactsIF {
 
-	@Override 
-	public boolean equals(String enteredPhoneNumber, AddressBook addressBook) {
-		Iterator<Contacts> iterator = addressBook.contacts.iterator();
-		while(iterator.hasNext())
-			if(enteredPhoneNumber.equalsIgnoreCase(iterator.next().getPhoneNumber()))
-				return true; 
-		return false;
-	}
-
 	@Override
 	public void addContact(AddressBook addressBook) {
 
 		Contacts contact = new Contacts();
 		System.out.print("Enter Phone Number: ");
 		String phoneNumber = AddressBookMain.scanner.next();
-		if(equals(phoneNumber,addressBook)==true){
+		boolean checkAlreadyExist = addressBook.contacts.stream()
+									.anyMatch(n -> n.getPhoneNumber().equalsIgnoreCase(phoneNumber));
+		if(checkAlreadyExist == true){
 			System.out.println("Contact already exits!");
 		}
 		else {

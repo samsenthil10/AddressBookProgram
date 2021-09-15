@@ -6,5 +6,4 @@ public interface ContactsIF {
 	public void editContact(AddressBook addressBook);
 	public void deleteContact(AddressBook addressBook);
 	public void printContact(AddressBook addressBook);
-	public boolean equals(String enteredPhoneNumber, AddressBook addressBook);
 }
