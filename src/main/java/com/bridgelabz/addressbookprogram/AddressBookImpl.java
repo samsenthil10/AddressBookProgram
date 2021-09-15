@@ -1,10 +1,12 @@
 package com.bridgelabz.addressbookprogram;
 
+import java.util.List;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -41,41 +43,32 @@ public class AddressBookImpl implements AddressBookIF {
 	@Override
 	public void showContactsInGivenCity(String enteredCity, Map<String, AddressBook> addressBooks) {
 
-		int emptyFlag=0;
 		System.out.println("City: "+enteredCity);
+		List<Contacts> contactsInCity = null;
 		for (Entry<String, AddressBook> entry : addressBooks.entrySet()) {
-			Iterator<Contacts> iterator = entry.getValue().contacts.iterator();
-			while(iterator.hasNext()) {
-				Contacts contact = iterator.next();
-				if(contact == null)
-					continue;
-				if(contact.getCity().equalsIgnoreCase(enteredCity)) {
-					emptyFlag=1;
-					System.out.println(contact.getFirstName()+" "+contact.getLastName());
-				}					
-			}
+			contactsInCity = entry.getValue().contacts.stream()
+					.filter(contact -> contact.getState().equalsIgnoreCase(enteredCity))
+					.collect(Collectors.toList());
 		}
-		if(emptyFlag == 0)
-			System.out.println("No Contacts Found!");
+		if(contactsInCity.size()>0) {
+			contactsInCity.stream()
+			.forEach(contact -> {System.out.println(contact.getFirstName()+" "+contact.getLastName());});
+		}	
 	}
-
 	@Override
 	public void showContactsInGivenState(String enteredState, Map<String, AddressBook> addressBooks) {
 
-		int emptyFlag=0;
 		System.out.println("State: "+enteredState);
+		List<Contacts> contactsInState = null;
 		for (Entry<String, AddressBook> entry : addressBooks.entrySet()) {
-			Iterator<Contacts> iterator = entry.getValue().contacts.iterator();
-			while(iterator.hasNext()) {
-				Contacts contact = iterator.next();
-				if(contact.getState().equalsIgnoreCase(enteredState)) {
-					emptyFlag=1;
-					System.out.println(contact.getFirstName()+" "+contact.getLastName());
-				}					
-			}
+			contactsInState = entry.getValue().contacts.stream()
+					.filter(contact -> contact.getState().equalsIgnoreCase(enteredState))
+					.collect(Collectors.toList());
 		}
-		if(emptyFlag == 0)
-			System.out.println("No Contacts Found!");
+		if(contactsInState.size()>0) {
+			contactsInState.stream()
+			.forEach(contact -> {System.out.println(contact.getFirstName()+" "+contact.getLastName());});
+		}	
 	}
 
 	@Override
@@ -136,10 +129,10 @@ public class AddressBookImpl implements AddressBookIF {
 			System.out.println("No Records Found");
 		}
 	}
-	
+
 	@Override
 	public void console() {
-		
+
 		System.out.println();
 		System.out.print("Number Of Address Books:");
 		int numberOfAddressBooks = AddressBookMain.scanner.nextInt();
@@ -246,6 +239,6 @@ public class AddressBookImpl implements AddressBookIF {
 			default: System.out.println("Invalid Choice!");
 			}
 		}while(true);
-		
+
 	}
 }
