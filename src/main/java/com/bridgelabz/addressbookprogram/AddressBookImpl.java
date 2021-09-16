@@ -97,7 +97,7 @@ public class AddressBookImpl implements AddressBookIF {
 				}
 
 				else if(result.getKey()!=null) {
-					System.out.println("City "+result.getKey()+" Contacts: "+result.getValue());
+					System.out.println("City: "+result.getKey()+" Count: "+result.getValue().stream().count()+" Contacts: "+result.getValue());
 				}
 			}
 		}
@@ -122,7 +122,7 @@ public class AddressBookImpl implements AddressBookIF {
 				}
 
 				else if(result.getKey()!=null) {
-					System.out.println("State "+result.getKey()+" Contacts: "+result.getValue());
+					System.out.println("State: "+result.getKey()+" Count: "+result.getValue().stream().count()+" Contacts: "+result.getValue());
 				}
 			}
 		}
