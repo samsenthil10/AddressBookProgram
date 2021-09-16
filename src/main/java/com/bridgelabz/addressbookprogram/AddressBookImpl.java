@@ -171,7 +171,7 @@ public class AddressBookImpl implements AddressBookIF {
 				while(exitFlag == 0) {
 
 					System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
-					System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Back");
+					System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Print Sorted Contacts\n[6] Back");
 					System.out.print("Enter Choice: "); 
 					int contactsChoice = AddressBookMain.scanner.nextInt();
 					switch(contactsChoice) {
@@ -189,7 +189,9 @@ public class AddressBookImpl implements AddressBookIF {
 					break;
 					case 4: contacts.printContact(addressBook);
 					break;
-					case 5:exitFlag=1;
+					case 5: contacts.sortedContacts(addressBook);
+					break;
+					case 6:exitFlag=1;
 					break;
 					default: System.out.println("Invalid Choice!");
 					}
