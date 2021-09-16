@@ -1,6 +1,7 @@
 package com.bridgelabz.addressbookprogram;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ContactsImpl implements ContactsIF {
 
@@ -11,7 +12,7 @@ public class ContactsImpl implements ContactsIF {
 		System.out.print("Enter Phone Number: ");
 		String phoneNumber = AddressBookMain.scanner.next();
 		boolean checkAlreadyExist = addressBook.contacts.stream()
-									.anyMatch(n -> n.getPhoneNumber().equalsIgnoreCase(phoneNumber));
+				.anyMatch(n -> n.getPhoneNumber().equalsIgnoreCase(phoneNumber));
 		if(checkAlreadyExist == true){
 			System.out.println("Contact already exits!");
 		}
@@ -145,6 +146,37 @@ public class ContactsImpl implements ContactsIF {
 				System.out.println(contact.getEmail());
 				System.out.println();	
 			} 
+		}
+	}
+
+	@Override
+	public void sortedContacts(AddressBook addressBook) {
+		int exitFlag=0;
+		System.out.println("[1]Sort by Name\n[2]Back");
+		System.out.print("Enter Choice: "); 
+		int searchChoice = AddressBookMain.scanner.nextInt();
+		while(exitFlag==0) {
+			switch(searchChoice) {
+			case 1:List<Contacts> sortedContacts = addressBook.contacts.stream()
+					.collect(Collectors.toList());
+			sortedContacts.sort(Comparator.comparing(Contacts::getFirstName));
+			sortedContacts.stream()
+			.forEach(contact -> {System.out.println();
+			System.out.println(contact.getFirstName());
+			System.out.println(contact.getLastName());
+			System.out.println(contact.getAddress());
+			System.out.println(contact.getCity());
+			System.out.println(contact.getState());
+			System.out.println(contact.getZip());
+			System.out.println(contact.getPhoneNumber());
+			System.out.println(contact.getEmail());
+			System.out.println();});
+			exitFlag=1;
+			break;
+			case 2: exitFlag=1;
+			break;
+			default:System.out.println("Invalid Choice");
+			}
 		}
 	}
 }

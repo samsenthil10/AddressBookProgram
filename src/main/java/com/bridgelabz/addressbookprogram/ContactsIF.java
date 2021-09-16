@@ -6,4 +6,5 @@ public interface ContactsIF {
 	public void editContact(AddressBook addressBook);
 	public void deleteContact(AddressBook addressBook);
 	public void printContact(AddressBook addressBook);
+	public void sortedContacts(AddressBook addressBook);
 }
