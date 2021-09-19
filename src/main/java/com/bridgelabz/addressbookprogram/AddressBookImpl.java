@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -171,7 +169,7 @@ public class AddressBookImpl implements AddressBookIF {
 				while(exitFlag == 0) {
 
 					System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
-					System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Print Sorted Contacts\n[6] Back");
+					System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Print Sorted Contacts\n[6] Read or Write to file\n[7] Back");
 					System.out.print("Enter Choice: "); 
 					int contactsChoice = AddressBookMain.scanner.nextInt();
 					switch(contactsChoice) {
@@ -191,7 +189,25 @@ public class AddressBookImpl implements AddressBookIF {
 					break;
 					case 5: contacts.sortedContacts(addressBook);
 					break;
-					case 6:exitFlag=1;
+					case 6:System.out.println("[1]Read contacts from file\n[2]Write Contacts to file\n[3]Back");
+					System.out.print("Enter Choice: "); 
+					int fileChoice = AddressBookMain.scanner.nextInt();
+					AddressBookIO addressBookFileIO = new AddressBookIO(); 
+					while(exitFlag==0) {
+						switch(fileChoice) {
+						case 1: addressBookFileIO.readFromFile(addressBooks,addressBook);
+						exitFlag=1;
+						break;
+						case 2: addressBookFileIO.writeToFile(addressBooks,addressBook);
+						exitFlag=1;
+						break;
+						case 3:exitFlag=1;
+						break;
+						default:System.out.println("Invalid Choice");
+						}
+					}
+						break;
+					case 7:exitFlag=1;
 					break;
 					default: System.out.println("Invalid Choice!");
 					}
