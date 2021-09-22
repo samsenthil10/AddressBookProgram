@@ -171,50 +171,74 @@ public class ContactsImpl implements ContactsIF {
 		int searchChoice = AddressBookMain.scanner.nextInt();
 		while(exitFlag==0) {
 			switch(searchChoice) {
-			case 1:List<Contacts> sortedContactsByName = addressBook.contacts.stream()
-					.collect(Collectors.toList());
-			sortedContactsByName.sort(Comparator.comparing(Contacts::getFirstName));
-			if(sortedContactsByName.size()>0)
-				sortedContactsByName.stream()
-				.forEach(contact -> {customPrint(contact);});
-			else
-				System.out.println("Contacts Empty");
-			exitFlag=1;
+			case 1:exitFlag = sortByName(addressBook);
 			break;
-			case 2:List<Contacts> sortedContactsByCity = addressBook.contacts.stream()
-					.collect(Collectors.toList());
-			sortedContactsByCity.sort(Comparator.comparing(Contacts::getCity));
-			if(sortedContactsByCity.size()>0)
-				sortedContactsByCity.stream()
-				.forEach(contact -> {customPrint(contact);});
-			else
-				System.out.println("Contacts Empty"); 
-			exitFlag=1;
+			case 2:exitFlag = sortByCity(addressBook);
 			break;
-			case 3:List<Contacts> sortedContactsByState = addressBook.contacts.stream()
-					.collect(Collectors.toList());
-			sortedContactsByState.sort(Comparator.comparing(Contacts::getState));
-			if(sortedContactsByState.size()>0)
-				sortedContactsByState.stream()
-				.forEach(contact -> {customPrint(contact);});
-			else
-				System.out.println("Contacts Empty"); 
-			exitFlag=1;
+			case 3:exitFlag = sortByState(addressBook);
 			break;
-			case 4:List<Contacts> sortedContactsByPinCode = addressBook.contacts.stream()
-					.collect(Collectors.toList());
-			sortedContactsByPinCode.sort(Comparator.comparing(Contacts::getZip));
-			if(sortedContactsByPinCode.size()>0)
-				sortedContactsByPinCode.stream()
-				.forEach(contact -> {customPrint(contact);});
-			else
-				System.out.println("Contacts Empty"); 
-			exitFlag=1;
+			case 4:exitFlag = sortByZipCode(addressBook);
 			break;
 			case 5: exitFlag=1; 
 			break;
 			default:System.out.println("Invalid Choice");
 			}
 		}
+	}
+
+	private int sortByZipCode(AddressBook addressBook) {
+		int exitFlag;
+		List<Contacts> sortedContactsByPinCode = addressBook.contacts.stream()
+				.collect(Collectors.toList());
+		sortedContactsByPinCode.sort(Comparator.comparing(Contacts::getZip));
+		if(sortedContactsByPinCode.size()>0)
+			sortedContactsByPinCode.stream()
+			.forEach(contact -> {customPrint(contact);});
+		else
+			System.out.println("Contacts Empty"); 
+		exitFlag=1;
+		return exitFlag;
+	}
+
+	private int sortByState(AddressBook addressBook) {
+		int exitFlag;
+		List<Contacts> sortedContactsByState = addressBook.contacts.stream()
+				.collect(Collectors.toList());
+		sortedContactsByState.sort(Comparator.comparing(Contacts::getState));
+		if(sortedContactsByState.size()>0)
+			sortedContactsByState.stream()
+			.forEach(contact -> {customPrint(contact);});
+		else
+			System.out.println("Contacts Empty"); 
+		exitFlag=1;
+		return exitFlag;
+	}
+
+	private int sortByCity(AddressBook addressBook) {
+		int exitFlag;
+		List<Contacts> sortedContactsByCity = addressBook.contacts.stream()
+				.collect(Collectors.toList());
+		sortedContactsByCity.sort(Comparator.comparing(Contacts::getCity));
+		if(sortedContactsByCity.size()>0)
+			sortedContactsByCity.stream()
+			.forEach(contact -> {customPrint(contact);});
+		else
+			System.out.println("Contacts Empty"); 
+		exitFlag=1;
+		return exitFlag;
+	}
+
+	private int sortByName(AddressBook addressBook) {
+		int exitFlag;
+		List<Contacts> sortedContactsByName = addressBook.contacts.stream()
+				.collect(Collectors.toList());
+		sortedContactsByName.sort(Comparator.comparing(Contacts::getFirstName));
+		if(sortedContactsByName.size()>0)
+			sortedContactsByName.stream()
+			.forEach(contact -> {customPrint(contact);});
+		else
+			System.out.println("Contacts Empty");
+		exitFlag=1;
+		return exitFlag;
 	}
 }

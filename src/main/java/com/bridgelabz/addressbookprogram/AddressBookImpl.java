@@ -11,7 +11,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 public class AddressBookImpl implements AddressBookIF {
-
+	
+	public enum IOService {
+		FILE_IO, CSV_IO, JSON_IO
+	}
+	
 	@Override
 	public AddressBook selectActiveAddressBook(Map<String, AddressBook> addressBooks) {
 
@@ -155,108 +159,150 @@ public class AddressBookImpl implements AddressBookIF {
 			System.out.print("Enter Choice: "); 
 			int addressChoice = AddressBookMain.scanner.nextInt();
 			switch(addressChoice) {
-			case 1: addressBook = addressBookOperations.selectActiveAddressBook(addressBooks);
-			if(addressBook == null)
-				System.out.println("No Address Books Present");
-			else
-				System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
+			case 1: addressBook = selectAddressBook(addressBooks, addressBookOperations);
 			break;
 			case 2:
 				if(addressBook==null) {
 					System.out.println("Select Active Address Book!");
 					break;
 				}
-				while(exitFlag == 0) {
-
-					System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
-					System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Print Sorted Contacts\n[6] Read or Write to file\n[7] Back");
-					System.out.print("Enter Choice: "); 
-					int contactsChoice = AddressBookMain.scanner.nextInt();
-					switch(contactsChoice) {
-					case 1:  
-						System.out.print("Number Of Contacts:");
-						int numberOfContacts = AddressBookMain.scanner.nextInt();
-						for(int iterator = 1; iterator<=numberOfContacts; iterator++) {
-							System.out.println("Enter Contact "+iterator+" Details: ");
-							contacts.addContact(addressBook);
-						} 
-						break;
-					case 2:contacts.editContact(addressBook);
-					break;
-					case 3:contacts.deleteContact(addressBook);
-					break;
-					case 4: contacts.printContact(addressBook);
-					break;
-					case 5: contacts.sortedContacts(addressBook);
-					break;
-					case 6:System.out.println("[1]Read contacts from file\n[2]Write Contacts to file\n[3]Back");
-					System.out.print("Enter Choice: "); 
-					int fileChoice = AddressBookMain.scanner.nextInt();
-					AddressBookIO addressBookFileIO = new AddressBookIO(); 
-					while(exitFlag==0) {
-						switch(fileChoice) {
-						case 1: addressBookFileIO.readFromFile(addressBooks,addressBook);
-						exitFlag=1;
-						break;
-						case 2: addressBookFileIO.writeToFile(addressBooks,addressBook);
-						exitFlag=1;
-						break;
-						case 3:exitFlag=1;
-						break;
-						default:System.out.println("Invalid Choice");
-						}
-					}
-						break;
-					case 7:exitFlag=1;
-					break;
-					default: System.out.println("Invalid Choice!");
-					}
-				}
+				contactOperations(addressBooks, addressBookOperations, contacts, addressBook, exitFlag);
 				break;
-			case 3:System.out.println("[1]Show contacts in city\n[2]Show contacts in state\n[3]Back");
-			System.out.print("Enter Choice: "); 
-			int searchChoice = AddressBookMain.scanner.nextInt();
-			while(exitFlag==0) {
-				switch(searchChoice) {
-				case 1:System.out.print("Enter City: "); 
-				String searchByCity = AddressBookMain.scanner.next();
-				addressBookOperations.showContactsInGivenCity(searchByCity, addressBooks);
-				exitFlag=1;
-				break;
-				case 2: System.out.print("Enter State: ");  
-				String searchByState = AddressBookMain.scanner.next();
-				addressBookOperations.showContactsInGivenState(searchByState, addressBooks);
-				exitFlag=1;
-				break;
-				case 3:exitFlag=1;
-				break;
-				default:System.out.println("Invalid Choice");
-				}
-			}
+			case 3:seeContactsInGivenCityOrState(addressBooks, addressBookOperations, exitFlag);
 			break;
-			case 4:System.out.println("[1]Show contacts in all cities\n[2]Show contacts in all states\n[3]Back");
-			System.out.print("Enter Choice: "); 
-			int printChoice = AddressBookMain.scanner.nextInt();
-			while(exitFlag==0) {
-				switch(printChoice) {
-				case 1:addressBookOperations.showAllContactsInAllCity(addressBooks);
-				exitFlag=1;
-				break;
-				case 2: addressBookOperations.showAllContactsInAllState(addressBooks);
-				exitFlag=1;
-				break;
-				case 3:exitFlag=1;
-				break;
-				default:System.out.println("Invalid Choice");
-				}
-			}
+			case 4:seeContactsInAllCityOrState(addressBooks, addressBookOperations, exitFlag);
 			break;
-			case 5: AddressBookMain.scanner.close(); 
-			System.exit(0);
+			case 5: exitProgram();
 			break;
 			default: System.out.println("Invalid Choice!");
 			}
 		}while(true);
 
+	}
+
+	private void contactOperations(Map<String, AddressBook> addressBooks, AddressBookIF addressBookOperations,
+			ContactsIF contacts, AddressBook addressBook, int exitFlag) {
+		while(exitFlag == 0) {
+
+			System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
+			System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Print Sorted Contacts\n[6] Read or Write to file\n[7] Back");
+			System.out.print("Enter Choice: "); 
+			int contactsChoice = AddressBookMain.scanner.nextInt();
+			switch(contactsChoice) {
+			case 1:  
+				System.out.print("Number Of Contacts:");
+				int numberOfContacts = AddressBookMain.scanner.nextInt();
+				for(int iterator = 1; iterator<=numberOfContacts; iterator++) {
+					System.out.println("Enter Contact "+iterator+" Details: ");
+					contacts.addContact(addressBook);
+				} 
+				break;
+			case 2:contacts.editContact(addressBook);
+			break;
+			case 3:contacts.deleteContact(addressBook);
+			break;
+			case 4: contacts.printContact(addressBook);
+			break;
+			case 5: contacts.sortedContacts(addressBook);
+			break;
+			case 6:exitFlag = fileIO(addressBooks, addressBook, exitFlag);
+				break;
+			case 7:exitFlag=1;
+			break;
+			default: System.out.println("Invalid Choice!");
+			}
+		}
+	}
+
+	private int fileIO(Map<String, AddressBook> addressBooks, AddressBook addressBook, int exitFlag) {
+		System.out.println("[1]Read contacts from text file\n[2]Write Contacts to text file\n[3]Read contacts from csv file\n[4]Write Contacts to csv file\n[5]Read contacts from csv file\n[6]Write Contacts to csv file\n[7] Back");
+		System.out.print("Enter Choice: "); 
+		int fileChoice = AddressBookMain.scanner.nextInt();
+		AddressBookIO addressBookFileIO = new AddressBookIO(); 
+		while(exitFlag==0) {
+			switch(fileChoice) {
+			case 1: addressBookFileIO.readFromFile(addressBooks,addressBook, IOService.FILE_IO );
+			exitFlag=1;
+			break;
+			case 2: addressBookFileIO.writeToFile(addressBooks,addressBook, IOService.FILE_IO);
+			exitFlag=1;
+			break;
+			case 3: addressBookFileIO.readFromFile(addressBooks,addressBook, IOService.CSV_IO);
+			exitFlag=1;
+			break;
+			case 4: addressBookFileIO.writeToFile(addressBooks,addressBook, IOService.CSV_IO);
+			exitFlag=1;
+			break;
+			case 5: addressBookFileIO.readFromFile(addressBooks,addressBook, IOService.JSON_IO);
+			exitFlag=1;
+			break;
+			case 6: addressBookFileIO.writeToFile(addressBooks,addressBook, IOService.JSON_IO);
+			exitFlag=1;
+			break;
+			case 7:exitFlag=1;
+			break;
+			default:System.out.println("Invalid Choice");
+			}
+		}
+		return exitFlag;
+	}
+
+	private void seeContactsInGivenCityOrState(Map<String, AddressBook> addressBooks,
+			AddressBookIF addressBookOperations, int exitFlag) {
+		System.out.println("[1]Show contacts in city\n[2]Show contacts in state\n[3]Back");
+		System.out.print("Enter Choice: "); 
+		int searchChoice = AddressBookMain.scanner.nextInt();
+		while(exitFlag==0) {
+			switch(searchChoice) {
+			case 1:System.out.print("Enter City: "); 
+			String searchByCity = AddressBookMain.scanner.next();
+			addressBookOperations.showContactsInGivenCity(searchByCity, addressBooks);
+			exitFlag=1;
+			break;
+			case 2: System.out.print("Enter State: ");  
+			String searchByState = AddressBookMain.scanner.next();
+			addressBookOperations.showContactsInGivenState(searchByState, addressBooks);
+			exitFlag=1;
+			break;
+			case 3:exitFlag=1;
+			break;
+			default:System.out.println("Invalid Choice");
+			}
+		}
+	}
+
+	private void seeContactsInAllCityOrState(Map<String, AddressBook> addressBooks, AddressBookIF addressBookOperations,
+			int exitFlag) {
+		System.out.println("[1]Show contacts in all cities\n[2]Show contacts in all states\n[3]Back");
+		System.out.print("Enter Choice: "); 
+		int printChoice = AddressBookMain.scanner.nextInt();
+		while(exitFlag==0) {
+			switch(printChoice) {
+			case 1:addressBookOperations.showAllContactsInAllCity(addressBooks);
+			exitFlag=1;
+			break;
+			case 2: addressBookOperations.showAllContactsInAllState(addressBooks);
+			exitFlag=1;
+			break;
+			case 3:exitFlag=1;
+			break;
+			default:System.out.println("Invalid Choice");
+			}
+		}
+	}
+
+	private void exitProgram() {
+		AddressBookMain.scanner.close(); 
+		System.exit(0);
+	}
+
+	private AddressBook selectAddressBook(Map<String, AddressBook> addressBooks, AddressBookIF addressBookOperations) {
+		AddressBook addressBook;
+		addressBook = addressBookOperations.selectActiveAddressBook(addressBooks);
+		if(addressBook == null)
+			System.out.println("No Address Books Present");
+		else
+			System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
+		return addressBook;
 	}
 }
