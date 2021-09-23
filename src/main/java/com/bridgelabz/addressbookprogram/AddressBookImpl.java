@@ -185,7 +185,7 @@ public class AddressBookImpl implements AddressBookIF {
 		while(exitFlag == 0) {
 
 			System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
-			System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Print Sorted Contacts\n[6] Read or Write to file\n[7] Back");
+			System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Print Sorted Contacts\n[6] Read from file or Write to file\n[7] Back");
 			System.out.print("Enter Choice: "); 
 			int contactsChoice = AddressBookMain.scanner.nextInt();
 			switch(contactsChoice) {
@@ -215,7 +215,7 @@ public class AddressBookImpl implements AddressBookIF {
 	}
 
 	private int fileIO(Map<String, AddressBook> addressBooks, AddressBook addressBook, int exitFlag) {
-		System.out.println("[1]Read contacts from text file\n[2]Write Contacts to text file\n[3]Read contacts from csv file\n[4]Write Contacts to csv file\n[5]Read contacts from csv file\n[6]Write Contacts to csv file\n[7] Back");
+		System.out.println("[1]Read contacts from text file\n[2]Write Contacts to text file\n[3]Read contacts from csv file\n[4]Write Contacts to csv file\n[5]Read contacts from json file\n[6]Write Contacts to json file\n[7] Back");
 		System.out.print("Enter Choice: "); 
 		int fileChoice = AddressBookMain.scanner.nextInt();
 		AddressBookIO addressBookFileIO = new AddressBookIO(); 

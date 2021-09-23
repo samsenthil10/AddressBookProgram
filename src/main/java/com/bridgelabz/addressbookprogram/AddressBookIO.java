@@ -2,7 +2,9 @@ package com.bridgelabz.addressbookprogram;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,8 +14,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import com.bridgelabz.addressbookprogram.AddressBookImpl.IOService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.opencsv.CSVReader;
-
 
 public class AddressBookIO {
 
@@ -166,8 +169,46 @@ public class AddressBookIO {
 
 	private void readFromJsonFile(Map<String, AddressBook> addressBooks,AddressBook addressBook) {
 
+		try {
+			AddressBookIF addressBookOperations = new AddressBookImpl();
+			String fileName = addressBookOperations.getKey(addressBooks, addressBook);
+			String filePath = "./json/"+fileName+".json";
+			Gson gson = new Gson();
+			Reader reader = Files.newBufferedReader(Paths.get(filePath));
+			Map<?, ?> map = gson.fromJson(reader, Map.class);
+			for (Map.Entry<?, ?> entry : map.entrySet()) {
+				System.out.println(entry.getValue().toString());
+			}
+			reader.close();
+		} catch (Exception ex) {
+
+		}
+
 	}
 	private void writeToJsonFile(Map<String, AddressBook> addressBooks,AddressBook addressBook) {
 
+		try {
+
+			AddressBookIF addressBookOperations = new AddressBookImpl();
+			String fileName = addressBookOperations.getKey(addressBooks, addressBook);
+			String filePath = "./json/"+fileName+".json";
+			Path path = Paths.get(filePath);
+			try {
+				Files.deleteIfExists(path);
+			} 
+			catch (IOException e) {
+
+			}
+
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			String json =gson.toJson(addressBook);
+			FileWriter writer = new FileWriter(filePath);
+			writer.write(json);
+			writer.close();
+
+		}
+		catch(IOException e) {
+
+		}
 	}
 }
