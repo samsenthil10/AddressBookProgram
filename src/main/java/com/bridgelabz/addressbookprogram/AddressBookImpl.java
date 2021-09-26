@@ -11,11 +11,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 public class AddressBookImpl implements AddressBookIF {
-	
+
 	public enum IOService {
-		FILE_IO, CSV_IO, JSON_IO
+		FILE_IO, CSV_IO, JSON_IO, DB_IO
 	}
-	
+
 	@Override
 	public AddressBook selectActiveAddressBook(Map<String, AddressBook> addressBooks) {
 
@@ -206,7 +206,7 @@ public class AddressBookImpl implements AddressBookIF {
 			case 5: contacts.sortedContacts(addressBook);
 			break;
 			case 6:exitFlag = fileIO(addressBooks, addressBook, exitFlag);
-				break;
+			break;
 			case 7:exitFlag=1;
 			break;
 			default: System.out.println("Invalid Choice!");
@@ -215,10 +215,11 @@ public class AddressBookImpl implements AddressBookIF {
 	}
 
 	private int fileIO(Map<String, AddressBook> addressBooks, AddressBook addressBook, int exitFlag) {
-		System.out.println("[1]Read contacts from text file\n[2]Write Contacts to text file\n[3]Read contacts from csv file\n[4]Write Contacts to csv file\n[5]Read contacts from json file\n[6]Write Contacts to json file\n[7] Back");
+		System.out.println("[1]Read contacts from text file\n[2]Write Contacts to text file\n[3]Read contacts from csv file\n[4]Write Contacts to csv file\n[5]Read contacts from json file\n[6]Write Contacts to json file\n[7]DB operations\n[8] Back");
 		System.out.print("Enter Choice: "); 
 		int fileChoice = AddressBookMain.scanner.nextInt();
 		AddressBookIO addressBookFileIO = new AddressBookIO(); 
+
 		while(exitFlag==0) {
 			switch(fileChoice) {
 			case 1: addressBookFileIO.readFromFile(addressBooks,addressBook, IOService.FILE_IO );
@@ -239,7 +240,45 @@ public class AddressBookImpl implements AddressBookIF {
 			case 6: addressBookFileIO.writeToFile(addressBooks,addressBook, IOService.JSON_IO);
 			exitFlag=1;
 			break;
-			case 7:exitFlag=1;
+			case 7: exitFlag = dbOperations(addressBooks, addressBook, exitFlag);
+			break;
+			case 8:exitFlag=1;
+			break;
+			default:System.out.println("Invalid Choice");
+			}
+		}
+		return exitFlag;
+	}
+
+	private int dbOperations(Map<String, AddressBook> addressBooks, AddressBook addressBook, int exitFlag) {
+		
+		System.out.println("[1]Read contacts from Database\n[2]Print All Queries\n[3]Exit");
+		System.out.print("Enter Choice: "); 
+		int searchChoice = AddressBookMain.scanner.nextInt();
+		AddressBookJdbcService jdbcService = new AddressBookJdbcService();
+		AddressBookIF addressBookOperations = new AddressBookImpl();
+		String addressBookName = addressBookOperations.getKey(addressBooks, addressBook);
+		String city = "Los Santos";
+		String state = "San Andreas";
+		String type = "Friend";
+		while(exitFlag==0) {
+			switch(searchChoice) {
+			case 1: jdbcService.readContactList(addressBookName);
+			exitFlag=1;
+			break;
+			case 2: jdbcService.readContactListOfCity(city);
+			System.out.println();
+			jdbcService.readContactListOfState(state);
+			System.out.println();
+			jdbcService.countOfContactsInGivenStateCity(city, state, addressBookName);
+			System.out.println();
+			jdbcService.getSortedContactByName(city);
+			System.out.println();
+			jdbcService.countOfContactsInGivenType(type);
+			System.out.println();
+			exitFlag=1;
+			break;
+			case 3:exitFlag=1;
 			break;
 			default:System.out.println("Invalid Choice");
 			}
