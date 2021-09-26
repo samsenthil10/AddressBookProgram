@@ -251,7 +251,7 @@ public class AddressBookImpl implements AddressBookIF {
 	}
 
 	private int dbOperations(Map<String, AddressBook> addressBooks, AddressBook addressBook, int exitFlag) {
-		
+
 		System.out.println("[1]Read contacts from Database\n[2]Print All Queries\n[3]Exit");
 		System.out.print("Enter Choice: "); 
 		int searchChoice = AddressBookMain.scanner.nextInt();
@@ -263,10 +263,12 @@ public class AddressBookImpl implements AddressBookIF {
 		String type = "Friend";
 		while(exitFlag==0) {
 			switch(searchChoice) {
-			case 1: jdbcService.readContactList(addressBookName);
+			case 1:System.out.println(); 
+			jdbcService.readContactList(addressBookName);
 			exitFlag=1;
 			break;
-			case 2: jdbcService.readContactListOfCity(city);
+			case 2:System.out.println(); 
+			jdbcService.readContactListOfCity(city);
 			System.out.println();
 			jdbcService.readContactListOfState(state);
 			System.out.println();
@@ -275,6 +277,8 @@ public class AddressBookImpl implements AddressBookIF {
 			jdbcService.getSortedContactByName(city);
 			System.out.println();
 			jdbcService.countOfContactsInGivenType(type);
+			System.out.println();
+			jdbcService.readContactListByType(type);
 			System.out.println();
 			exitFlag=1;
 			break;
