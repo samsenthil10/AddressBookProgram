@@ -27,15 +27,14 @@ public class AddressBookJdbcService {
 	}
 
 
-	public void printContact(String firstName, String lastName, String address, String city, String state, String zip, String phoneNumber, String email) {
+	public void printContact(String first_name, String last_name, String city, String state, String zip, String phone_number, String email) {
 		
-		System.out.println("First Name : " + firstName);
-		System.out.println("Last Name : " + lastName );
-		System.out.println("Address : " + address );
+		System.out.println("First Name : " + first_name);
+		System.out.println("Last Name : " + last_name );
 		System.out.println("City : " + city );
 		System.out.println("State : " +state );
 		System.out.println("Pin Code : " + zip);
-		System.out.println("Phone Number : " + phoneNumber);
+		System.out.println("Phone Number : " + phone_number);
 		System.out.println("Email : " + email );
 		System.out.println();
 
@@ -76,7 +75,7 @@ public class AddressBookJdbcService {
 		
 		try {
 			Connection connection = this.getConnection();
-			String sql="SELECT * FROM contact JOIN address ON contact.address_id=address.address_id JOIN address_book ON contact.address_book_id=address_book.address_book_id"
+			String sql="SELECT contact.first_name,contact.last_name,address.house_number,address.street,address.city,address.state,address.zip,contact.phone_number,contact.email,address_book.address_book_name,address_book_type.address_book_type FROM contact JOIN address   ON contact.address_id=address.address_id JOIN address_book ON contact.address_book_id=address_book.address_book_id JOIN address_book_type ON address_book.address_book_id=address_book_type.address_book_id"
 					+ " where address_book_name=?;";
 			addressBookReadStatement=connection.prepareStatement(sql);
 		}
@@ -87,23 +86,20 @@ public class AddressBookJdbcService {
 
 	private void contactGrabber(ResultSet resultSet) throws SQLException {
 		
-		String firstName=resultSet.getString("firstName");
-		String lastName=resultSet.getString("lastName");
-		String houseNumber=resultSet.getString("house_number");
-		String street=resultSet.getString("street");
+		String first_name=resultSet.getString("first_name");
+		String last_name=resultSet.getString("last_name");
 		String city=resultSet.getString("city");
 		String state=resultSet.getString("state");
 		String zip=resultSet.getString("zip");
-		String address=houseNumber+street+city+zip;
-		String phoneNumber=resultSet.getString("phoneNumber");
+		String phone_number=resultSet.getString("phone_number");
 		String email=resultSet.getString("email");
-		printContact(firstName, lastName, address, city, state, zip, phoneNumber, email);
+		printContact(first_name, last_name, city, state, zip, phone_number, email);
 	}
 	
 	public void readContactListOfCity(String givenCity) 
 	{
 		String sql=String.format("SELECT * FROM contact JOIN address ON contact.address_id=address.address_id"+
-				" where address.state=\"%s\";",givenCity);
+				" where address.city=\"%s\";",givenCity);
 
 		try (Connection connection = this.getConnection())
 		{
@@ -152,7 +148,7 @@ public class AddressBookJdbcService {
 	{
 
 		int count=0;
-		String sql=String.format("SELECT count(id) FROM contact JOIN address ON contact.address_id=address.address_id"+
+		String sql=String.format("SELECT count(contact_id) FROM contact JOIN address ON contact.address_id=address.address_id"+
 				" JOIN address_book ON contact.address_book_id=address_book.address_book_id where contact.address_id in"+
 				" (Select address_id from address where state=\"%s\" and city=\"%s\") and address_book_name=\"%s\";",state,city,addressBook);
 
@@ -179,7 +175,7 @@ public class AddressBookJdbcService {
 	{
 
 		String sql=String.format("SELECT * FROM contact JOIN address ON contact.address_id=address.address_id"+
-				" where address.city=\"%s\" ORDER BY firstName ASC;",city);
+				" where address.city=\"%s\" ORDER BY first_name ASC;",city);
 
 
 
@@ -194,8 +190,8 @@ public class AddressBookJdbcService {
 
 			while(resultSet.next())
 			{
-				String firstName=resultSet.getString("firstName");
-				sortedContactList.add(firstName);
+				String first_name=resultSet.getString("first_name");
+				sortedContactList.add(first_name);
 			}
 
 			sortedContactList.forEach(value -> {System.out.println(value);});
@@ -210,7 +206,7 @@ public class AddressBookJdbcService {
 	public void countOfContactsInGivenType(String type) 
 	{
 		int count=0;
-		String sql=String.format("SELECT count(id) FROM address_book JOIN address_book_type" + 
+		String sql=String.format("SELECT count(contact_id) FROM address_book JOIN address_book_type" + 
 				" ON address_book.address_book_id=address_book_type.address_book_id JOIN contact"+
 				" ON address_book.address_book_id=contact.address_book_id"+
 				" where address_book_type.address_book_type=\"%s\";",type);
@@ -221,7 +217,7 @@ public class AddressBookJdbcService {
 			ResultSet resultSet=statement.executeQuery(sql);
 			while(resultSet.next())
 			{
-				count=resultSet.getInt("count(id)");
+				count=resultSet.getInt("count(contact_id)");
 			}
 			System.out.println(count);
 		}
@@ -235,9 +231,8 @@ public class AddressBookJdbcService {
 
 	{
 
-		String sql=String.format("select * from contact as c, address_book as a , address_book_type as att where att.address_book_type = \"%s\" and att.address_book_id=a.address_book_id and a.address_book_id=c.address_book_id",type);
-		
-		
+		String sql=String.format("SELECT contact.first_name,contact.last_name,address.house_number,address.street,address.city,address.state,address.zip,contact.phone_number,contact.email,address_book.address_book_name,address_book_type.address_book_type FROM contact JOIN address   ON contact.address_id=address.address_id JOIN address_book ON contact.address_book_id=address_book.address_book_id JOIN address_book_type ON address_book.address_book_id=address_book_type.address_book_id where address_book_type.address_book_type=\"%s\"",type);
+				
 		try (Connection connection = this.getConnection())
 		{
 
@@ -257,5 +252,4 @@ public class AddressBookJdbcService {
 		}
 
 	}
-
 }
