@@ -2,6 +2,7 @@ package com.bridgelabz.addressbookprogram;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,9 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AddressBookJdbcService { 
+	
+	private static AddressBookJdbcService addressBookJdbcService;
+	private PreparedStatement addressBookReadStatement;
+
+	public AddressBookJdbcService() {
+
+	}
+
+	public static AddressBookJdbcService getInstance() {
+		
+		if(addressBookJdbcService==null) {
+			addressBookJdbcService=new AddressBookJdbcService();
+		}
+		return  addressBookJdbcService;
+	}
 
 
-	public void printContact(String firstName, String lastName, String address, String city, String state, String zip, String phoneNumber, String email){
+	public void printContact(String firstName, String lastName, String address, String city, String state, String zip, String phoneNumber, String email) {
 		
 		System.out.println("First Name : " + firstName);
 		System.out.println("Last Name : " + lastName );
@@ -27,7 +43,7 @@ public class AddressBookJdbcService {
 
 	private Connection getConnection() throws SQLException 
 	{
-		String jdbcURL ="jdbc:mysql://localhost:3306/addressbook_service?allowPublicKeyRetrieval=true&useSSL=false";
+		String jdbcURL ="jdbc:mysql://localhost:3306/address_book_service?allowPublicKeyRetrieval=true&useSSL=false";
 		String username="root";
 		String password="root@123";
 		Connection connection = null;
@@ -37,41 +53,33 @@ public class AddressBookJdbcService {
 		return connection;
 	}
 
-	public void readContactList(String addressbookName) 
-
-	{
-
-		String sql=String.format("SELECT * FROM contact JOIN address ON contact.address_id=address.address_id JOIN address_book ON contact.address_book_id=address_book.address_book_id"
-				+ " where address_book_name=\"%s\";",addressbookName);
-
-		try (Connection connection = this.getConnection())
-		{
-
-			Statement statement=connection.createStatement();
-			ResultSet resultSet=statement.executeQuery(sql);
-
-
+	public void readContactList(String addressbookName) {
+		
+		try {
+			addressBookReadStatement.setString(1, addressbookName);
+			ResultSet resultSet=addressBookReadStatement.executeQuery();
 			while(resultSet.next())
 			{
-				String firstName=resultSet.getString("firstName");
-				String lastName=resultSet.getString("lastName");
-				String houseNumber=resultSet.getString("house_number");
-				String street=resultSet.getString("street");
-				String city=resultSet.getString("city");
-				String state=resultSet.getString("state");
-				String zip=resultSet.getString("zip");
-				String address=houseNumber+street+city+zip;
-				String phoneNumber=resultSet.getString("phoneNumber");
-				String email=resultSet.getString("email");
-				printContact(firstName, lastName, address, city, state, zip, phoneNumber, email);
+				contactGrabber(resultSet);
 			}
-
-		} 
-		catch (SQLException e) 
-		{
+		}
+		catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
 
+	private void contactGrabber(ResultSet resultSet) throws SQLException {
+		String firstName=resultSet.getString("firstName");
+		String lastName=resultSet.getString("lastName");
+		String houseNumber=resultSet.getString("house_number");
+		String street=resultSet.getString("street");
+		String city=resultSet.getString("city");
+		String state=resultSet.getString("state");
+		String zip=resultSet.getString("zip");
+		String address=houseNumber+street+city+zip;
+		String phoneNumber=resultSet.getString("phoneNumber");
+		String email=resultSet.getString("email");
+		printContact(firstName, lastName, address, city, state, zip, phoneNumber, email);
 	}
 	
 	public void readContactListOfCity(String givenCity) 
@@ -88,17 +96,7 @@ public class AddressBookJdbcService {
 
 			while(resultSet.next())
 			{
-				String firstName=resultSet.getString("firstName");
-				String lastName=resultSet.getString("lastName");
-				String houseNumber=resultSet.getString("house_number");
-				String street=resultSet.getString("street");
-				String city=resultSet.getString("city");
-				String state=resultSet.getString("state");
-				String zip=resultSet.getString("zip");
-				String address=houseNumber+street+city+zip;
-				String phoneNumber=resultSet.getString("phoneNumber");
-				String email=resultSet.getString("email");
-				printContact(firstName, lastName, address, city, state, zip, phoneNumber, email);
+				contactGrabber(resultSet);
 			}
 
 		} 
@@ -122,17 +120,7 @@ public class AddressBookJdbcService {
 
 			while(resultSet.next())
 			{
-				String firstName=resultSet.getString("firstName");
-				String lastName=resultSet.getString("lastName");
-				String houseNumber=resultSet.getString("house_number");
-				String street=resultSet.getString("street");
-				String city=resultSet.getString("city");
-				String state=resultSet.getString("state");
-				String zip=resultSet.getString("zip");
-				String address=houseNumber+street+city+zip;
-				String phoneNumber=resultSet.getString("phoneNumber");
-				String email=resultSet.getString("email");
-				printContact(firstName, lastName, address, city, state, zip, phoneNumber, email);
+				contactGrabber(resultSet);
 			}
 
 		} 
@@ -241,17 +229,7 @@ public class AddressBookJdbcService {
 
 			while(resultSet.next())
 			{
-				String firstName=resultSet.getString("firstName");
-				String lastName=resultSet.getString("lastName");
-				String houseNumber=resultSet.getString("house_number");
-				String street=resultSet.getString("street");
-				String city=resultSet.getString("city");
-				String state=resultSet.getString("state");
-				String zip=resultSet.getString("zip");
-				String address=houseNumber+street+city+zip;
-				String phoneNumber=resultSet.getString("phoneNumber");
-				String email=resultSet.getString("email");
-				printContact(firstName, lastName, address, city, state, zip, phoneNumber, email);
+				contactGrabber(resultSet);
 			}
 
 		} 
