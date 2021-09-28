@@ -55,6 +55,10 @@ public class AddressBookJdbcService {
 
 	public void readContactList(String addressbookName) {
 		
+		if(this.addressBookReadStatement==null) {
+			this.preparedStatementForContactData();
+		}
+		
 		try {
 			addressBookReadStatement.setString(1, addressbookName);
 			ResultSet resultSet=addressBookReadStatement.executeQuery();
@@ -67,8 +71,22 @@ public class AddressBookJdbcService {
 			e.printStackTrace();
 		}
 	}
+	
+	private void preparedStatementForContactData() {
+		
+		try {
+			Connection connection = this.getConnection();
+			String sql="SELECT * FROM contact JOIN address ON contact.address_id=address.address_id JOIN address_book ON contact.address_book_id=address_book.address_book_id"
+					+ " where address_book_name=?;";
+			addressBookReadStatement=connection.prepareStatement(sql);
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private void contactGrabber(ResultSet resultSet) throws SQLException {
+		
 		String firstName=resultSet.getString("firstName");
 		String lastName=resultSet.getString("lastName");
 		String houseNumber=resultSet.getString("house_number");
