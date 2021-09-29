@@ -7,10 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 public class AddressBookJdbcService { 
-	
+
 	private static AddressBookJdbcService addressBookJdbcService;
 	private PreparedStatement addressBookReadStatement;
 
@@ -19,7 +20,7 @@ public class AddressBookJdbcService {
 	}
 
 	public static AddressBookJdbcService getInstance() {
-		
+
 		if(addressBookJdbcService==null) {
 			addressBookJdbcService=new AddressBookJdbcService();
 		}
@@ -27,8 +28,20 @@ public class AddressBookJdbcService {
 	}
 
 
+	private void addContact(Contacts contact, String first_name, String last_name, String street,String city, String state, String zip, String phoneNumber, String email) {
+
+		contact.setPhoneNumber(phoneNumber);
+		contact.setFirstName(first_name);
+		contact.setLastName(last_name);
+		contact.setAddress(street);
+		contact.setCity(city);
+		contact.setState(state);
+		contact.setZip(zip);
+		contact.setEmail(email);
+	}
+
 	public void printContact(String first_name, String last_name, String city, String state, String zip, String phone_number, String email) {
-		
+
 		System.out.println("First Name : " + first_name);
 		System.out.println("Last Name : " + last_name );
 		System.out.println("City : " + city );
@@ -52,27 +65,31 @@ public class AddressBookJdbcService {
 		return connection;
 	}
 
-	public void readContactList(String addressbookName) {
-		
+	public LinkedHashSet<Contacts> readContactList(String addressbookName) {
+
 		if(this.addressBookReadStatement==null) {
 			this.preparedStatementForContactData();
 		}
-		
+
 		try {
 			addressBookReadStatement.setString(1, addressbookName);
 			ResultSet resultSet=addressBookReadStatement.executeQuery();
+			LinkedHashSet<Contacts> contacts = new LinkedHashSet<Contacts>();
 			while(resultSet.next())
 			{
+				contacts.add(contactAdder(resultSet));
 				contactGrabber(resultSet);
 			}
+			return contacts;
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
-	
+
 	private void preparedStatementForContactData() {
-		
+
 		try {
 			Connection connection = this.getConnection();
 			String sql="SELECT contact.first_name,contact.last_name,address.house_number,address.street,address.city,address.state,address.zip,contact.phone_number,contact.email,address_book.address_book_name,address_book_type.address_book_type FROM contact JOIN address   ON contact.address_id=address.address_id JOIN address_book ON contact.address_book_id=address_book.address_book_id JOIN address_book_type ON address_book.address_book_id=address_book_type.address_book_id"
@@ -84,8 +101,25 @@ public class AddressBookJdbcService {
 		}
 	}
 
+	private Contacts contactAdder(ResultSet resultSet) throws SQLException {
+
+		String first_name=resultSet.getString("first_name");
+		String last_name=resultSet.getString("last_name");
+		String street = resultSet.getString("street");
+		String city=resultSet.getString("city");
+		String state=resultSet.getString("state");
+		String zip=resultSet.getString("zip");
+		String phone_number=resultSet.getString("phone_number");
+		String email=resultSet.getString("email");
+		Contacts contact = new Contacts();
+		addContact(contact, first_name, last_name, street, city, state, zip, phone_number, email);
+		return contact;
+
+	}
+
+
 	private void contactGrabber(ResultSet resultSet) throws SQLException {
-		
+
 		String first_name=resultSet.getString("first_name");
 		String last_name=resultSet.getString("last_name");
 		String city=resultSet.getString("city");
@@ -95,7 +129,7 @@ public class AddressBookJdbcService {
 		String email=resultSet.getString("email");
 		printContact(first_name, last_name, city, state, zip, phone_number, email);
 	}
-	
+
 	public void readContactListOfCity(String givenCity) 
 	{
 		String sql=String.format("SELECT * FROM contact JOIN address ON contact.address_id=address.address_id"+
@@ -226,13 +260,13 @@ public class AddressBookJdbcService {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void readContactListByType(String type) 
 
 	{
 
 		String sql=String.format("SELECT contact.first_name,contact.last_name,address.house_number,address.street,address.city,address.state,address.zip,contact.phone_number,contact.email,address_book.address_book_name,address_book_type.address_book_type FROM contact JOIN address   ON contact.address_id=address.address_id JOIN address_book ON contact.address_book_id=address_book.address_book_id JOIN address_book_type ON address_book.address_book_id=address_book_type.address_book_id where address_book_type.address_book_type=\"%s\"",type);
-				
+
 		try (Connection connection = this.getConnection())
 		{
 
@@ -251,5 +285,28 @@ public class AddressBookJdbcService {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public void updateContactByName(String name, String newName) {
+		
+		String sql=String.format("UPDATE contact SET first_name = '%s' where first_name = '%s';",newName,name);
+
+		try (Connection connection = this.getConnection())
+		{
+
+			Statement statement=connection.createStatement();
+			@SuppressWarnings("unused")
+			int result=statement.executeUpdate(sql);
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean checkAddressBookInSyncWithDB(String name)
+	{
+		LinkedHashSet<Contacts> contacts= readContactList(name);
+		return contacts.equals(this.readContactList(name));
 	}
 }
