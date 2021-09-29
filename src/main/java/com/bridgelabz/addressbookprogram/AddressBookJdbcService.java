@@ -1,11 +1,13 @@
 package com.bridgelabz.addressbookprogram;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -178,7 +180,7 @@ public class AddressBookJdbcService {
 		}
 	}
 
-	public void countOfContactsInGivenStateCity(String city, String state, String addressBook) 
+	public int countOfContactsInGivenStateCity(String city, String state, String addressBook) 
 	{
 
 		int count=0;
@@ -197,12 +199,14 @@ public class AddressBookJdbcService {
 				count++;
 			}
 			System.out.println(count);
+			return count;
 
 		}
 		catch (SQLException e) 
 		{
 			e.printStackTrace();
 		}
+		return 0;
 	}
 
 	public void getSortedContactByName(String city) 
@@ -210,9 +214,6 @@ public class AddressBookJdbcService {
 
 		String sql=String.format("SELECT * FROM contact JOIN address ON contact.address_id=address.address_id"+
 				" where address.city=\"%s\" ORDER BY first_name ASC;",city);
-
-
-
 
 		List<String > sortedContactList = new ArrayList<String>();
 		try (Connection connection = this.getConnection())
@@ -237,7 +238,7 @@ public class AddressBookJdbcService {
 
 	}
 
-	public void countOfContactsInGivenType(String type) 
+	public int countOfContactsInGivenType(String type) 
 	{
 		int count=0;
 		String sql=String.format("SELECT count(contact_id) FROM address_book JOIN address_book_type" + 
@@ -254,11 +255,14 @@ public class AddressBookJdbcService {
 				count=resultSet.getInt("count(contact_id)");
 			}
 			System.out.println(count);
+			return count;
 		}
 		catch (SQLException e) 
 		{
 			e.printStackTrace();
 		}
+		
+		return 0;
 	}
 
 	public void readContactListByType(String type) 
@@ -308,5 +312,27 @@ public class AddressBookJdbcService {
 	{
 		LinkedHashSet<Contacts> contacts= readContactList(name);
 		return contacts.equals(this.readContactList(name));
+	}
+	
+	public int retrieveRecordBetweenDates(String startDate, String endDate) {
+		
+		int count=0;
+		String sql = String.format("SELECT * FROM contact WHERE date_added BETWEEN '%s' AND '%s';", Date.valueOf(startDate),
+				Date.valueOf(endDate));
+		try (Connection connection = this.getConnection())
+		{
+
+			Statement statement=connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(sql);
+			while(resultSet.next()) {
+				count++;
+			}
+			return count;
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+		} 
+		return 0;
 	}
 }
