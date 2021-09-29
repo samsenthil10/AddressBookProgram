@@ -83,4 +83,14 @@ public class AddressBookTest {
 		}
 		Assert.assertEquals(count, 2);
 	}
+	
+	@Test
+	public void whenUpdated_ShouldCheckForContactsInSync() {
+		
+		String name = "Michel";
+		String newName = "Michael";
+		AddressBookJdbcService.getInstance().updateContactByName(name, newName);
+		boolean result = AddressBookJdbcService.getInstance().checkAddressBookInSyncWithDB(name);
+		Assert.assertTrue(result);
+	}
 }
