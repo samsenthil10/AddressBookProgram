@@ -87,10 +87,19 @@ public class AddressBookTest {
 	@Test
 	public void whenUpdated_ShouldCheckForContactsInSync() {
 		
-		String name = "Michel";
+		String name = "Michael";
 		String newName = "Michael";
 		AddressBookJdbcService.getInstance().updateContactByName(name, newName);
 		boolean result = AddressBookJdbcService.getInstance().checkAddressBookInSyncWithDB(name);
 		Assert.assertTrue(result);
+	}
+	
+	@Test
+	public void givenDateRange_WhenRecordsRetrieved_ShouldReturnCountOfRecordsBetweenThatRange() {
+		
+		String startDate="2021-09-28";
+		String endDate="2021-09-29";
+		int result = AddressBookJdbcService.getInstance().retrieveRecordBetweenDates(startDate, endDate);
+	    Assert.assertEquals(result,4);
 	}
 }
