@@ -1,5 +1,6 @@
 package com.bridgelabz.addressbookprogram;
 
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
@@ -111,5 +112,23 @@ public class AddressBookTest {
 		String addressBook = "book1";
 		int count = AddressBookJdbcService.getInstance().countOfContactsInGivenStateCity(city, state, addressBook);
 		Assert.assertEquals(count, 1);
+	}
+	
+	@Test 
+	public void givenNewRecord_WhenInserted_ShouldIncreaseSize() {
+		
+		LinkedHashSet<Contacts> contacts1 = new LinkedHashSet<>();
+		LinkedHashSet<Contacts> contacts2 = new LinkedHashSet<>();
+		LinkedHashSet<Contacts> contacts3 = new LinkedHashSet<>();
+		contacts1=(AddressBookJdbcService.getInstance().readContactList("Book1"));
+		contacts2=(AddressBookJdbcService.getInstance().readContactList("Book2"));
+		contacts3=(AddressBookJdbcService.getInstance().readContactList("Book3"));
+		int result = 0;
+		try {
+			result = AddressBookJdbcService.getInstance().addAddressToAddressBook("Test","Test","Test","Test",1,1);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		Assert.assertEquals(contacts1.size()+contacts2.size()+contacts3.size()+1,result);		
 	}
 }
