@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -208,7 +207,7 @@ public class AddressBookJdbcService {
 		}
 		return 0;
 	}
-
+	
 	public void getSortedContactByName(String city) 
 	{
 
