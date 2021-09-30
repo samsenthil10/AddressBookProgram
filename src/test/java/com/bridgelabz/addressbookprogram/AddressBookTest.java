@@ -102,4 +102,14 @@ public class AddressBookTest {
 		int result = AddressBookJdbcService.getInstance().retrieveRecordBetweenDates(startDate, endDate);
 	    Assert.assertEquals(result,4);
 	}
+	
+	@Test
+	public void givenCityState_WhenRecordsRetrieved_ShouldMatchCount() {
+		
+		String city = "Los Santos";
+		String state = "San Andreas";
+		String addressBook = "book1";
+		int count = AddressBookJdbcService.getInstance().countOfContactsInGivenStateCity(city, state, addressBook);
+		Assert.assertEquals(count, 1);
+	}
 }
