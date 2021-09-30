@@ -207,7 +207,7 @@ public class AddressBookJdbcService {
 		}
 		return 0;
 	}
-	
+
 	public void getSortedContactByName(String city) 
 	{
 
@@ -260,7 +260,7 @@ public class AddressBookJdbcService {
 		{
 			e.printStackTrace();
 		}
-		
+
 		return 0;
 	}
 
@@ -289,9 +289,9 @@ public class AddressBookJdbcService {
 		}
 
 	}
-	
+
 	public void updateContactByName(String name, String newName) {
-		
+
 		String sql=String.format("UPDATE contact SET first_name = '%s' where first_name = '%s';",newName,name);
 
 		try (Connection connection = this.getConnection())
@@ -306,15 +306,15 @@ public class AddressBookJdbcService {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public boolean checkAddressBookInSyncWithDB(String name)
 	{
 		LinkedHashSet<Contacts> contacts= readContactList(name);
 		return contacts.equals(this.readContactList(name));
 	}
-	
+
 	public int retrieveRecordBetweenDates(String startDate, String endDate) {
-		
+
 		int count=0;
 		String sql = String.format("SELECT * FROM contact WHERE date_added BETWEEN '%s' AND '%s';", Date.valueOf(startDate),
 				Date.valueOf(endDate));
@@ -333,5 +333,47 @@ public class AddressBookJdbcService {
 			e.printStackTrace();
 		} 
 		return 0;
+	}
+
+	public int addAddressToAddressBook(String first_name, String last_name, String phone_number, String email, int address_id,int address_book_id) throws SQLException {
+
+		int count=0;
+		String sql = String.format(
+				"INSERT INTO contact(first_name,last_name,phone_number,email,address_id,address_book_id) VALUES ('%s','%s','%s','%s', %d, %d);",first_name, last_name, phone_number, email,address_id,address_book_id);
+		try (Connection connection = this.getConnection())
+		{
+
+			Statement statement=connection.createStatement();
+			@SuppressWarnings("unused")
+			int result=statement.executeUpdate(sql);
+			sql = "SELECT * FROM contact";
+			ResultSet resultSet = statement.executeQuery(sql);
+			while(resultSet.next()) {
+				count++;
+			}
+			return count;
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public void deleteContactByPhoneNumber(String phoneNumber) {
+
+		String sql=String.format("DELETE from contact where phone_number = '%s';",phoneNumber);
+
+		try (Connection connection = this.getConnection())
+		{
+
+			Statement statement=connection.createStatement();
+			@SuppressWarnings("unused")
+			int result=statement.executeUpdate(sql);
+		} 
+		catch (SQLException e) 
+		{
+			e.printStackTrace();
+		}
 	}
 }
