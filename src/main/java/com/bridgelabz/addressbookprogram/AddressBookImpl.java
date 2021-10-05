@@ -1,351 +1,446 @@
 package com.bridgelabz.addressbookprogram;
 
-import java.util.List;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
+import java.util.stream.Stream;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import com.bridgelabz.addressbookprogram.AddressBookFileIOService.FileType;
+import com.bridgelabz.addressbookprogram.IOServiceMode.IOService;
+import com.opencsv.exceptions.CsvException;
 
-public class AddressBookImpl implements AddressBookIF {
+import java.util.stream.Collectors;
 
-	public enum IOService {
-		FILE_IO, CSV_IO, JSON_IO, DB_IO
-	}
 
-	@Override
-	public AddressBook selectActiveAddressBook(Map<String, AddressBook> addressBooks) {
+public class AddressBookImpl implements AddressBookConsoleServiceIF, AddressBookIF {
 
-		if(addressBooks.isEmpty() == true)
-			return null;
-		else {
-			System.out.print("Name of Address Books :");
-			String toSelectAddressBooks = AddressBookMain.scanner.next();
-			for(Map.Entry<String, AddressBook> mapper:addressBooks.entrySet()) {
-				if(mapper.getKey().equalsIgnoreCase(toSelectAddressBooks)) {
-					return mapper.getValue();
-				}
-			}
-		}
-		return null;
-	}
+    AddressBookJdbcService addressBookDBService = new AddressBookJdbcService();
+    AddressBooks addressbookSystem = new AddressBooks();
 
-	@Override
-	public <K, V> String getKey(Map<String, AddressBook> map, AddressBook value) {
-		for (Entry<String, AddressBook> entry : map.entrySet()) {
-			if (entry.getValue().equals(value)) {
-				return entry.getKey();
-			}
-		}
-		return null;
-	}
+    List < Contact > contactList = new ArrayList < Contact > ();
+    List < ContactDTO > contactListDTO = new ArrayList < ContactDTO > ();
 
-	@Override
-	public void showContactsInGivenCity(String enteredCity, Map<String, AddressBook> addressBooks) {
 
-		System.out.println("City: "+enteredCity);
-		List<Contacts> contactsInCity = new ArrayList<>();
-		for (Entry<String, AddressBook> entry : addressBooks.entrySet()) {
-			entry.getValue().contacts.stream()
-			.filter(contact -> contact.getState().equalsIgnoreCase(enteredCity))
-			.forEach(contactsInCity::add);
-		}
-		if(contactsInCity.size()>0) {
-			contactsInCity.stream()
-			.forEach(contact -> {System.out.println(contact.getFirstName()+" "+contact.getLastName());});
-		}	
-		else {
-			System.out.println("No Contacts Found!");
-		}
-	}
-	@Override
-	public void showContactsInGivenState(String enteredState, Map<String, AddressBook> addressBooks) {
+    public AddressBookImpl(List < Contact > contactList) {
+        this.contactList = new ArrayList < Contact > ();
+    }
 
-		System.out.println("State: "+enteredState);
-		List<Contacts> contactsInState = new ArrayList<>();
-		for (Entry<String, AddressBook> entry : addressBooks.entrySet()) {
-			entry.getValue().contacts.stream()
-			.filter(contact -> contact.getState().equalsIgnoreCase(enteredState))
-			.forEach(contactsInState::add);
-		}
-		if(contactsInState.size()>0) {
-			contactsInState.stream()
-			.forEach(contact -> {System.out.println(contact.getFirstName()+" "+contact.getLastName());});
-		}	
-		else {
-			System.out.println("No Contacts Found!");
-		}
-	}
+    public AddressBookImpl() {
+        addressBookDBService = AddressBookJdbcService.getInstance();
+    }
 
-	@Override
-	public void showAllContactsInAllCity(Map<String, AddressBook> addressBooks) {
+    @Override
+    public void createAddressBook(String addressbookName) {
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+        AddressBook addressBook = new AddressBook();
+        addressBook.setAddressBookName(addressbookName);
+        addressbookList.add(addressBook);
+        addressbookSystem.setAddressbookList(addressbookList);
 
-		List<Contacts> contactsInCity = new ArrayList<>();
-		Multimap<String, String> cityContacts = ArrayListMultimap.create();
-		for (Entry<String, AddressBook> entry : addressBooks.entrySet()) {
-			entry.getValue().contacts.stream()
-			.forEach(contactsInCity::add);
-		}
-		contactsInCity.stream()
-		.forEach(contact -> {cityContacts.put(contact.getCity(), contact.getFirstName()+" "+contact.getLastName());});
-		if(cityContacts.size()>0) {
-			for(Entry<String,Collection<String>> result : cityContacts.asMap().entrySet()) {
-				if(result.getValue().size()==0 && result.getKey()!=null) {
-					System.out.println(result.getKey()+": No Contacts Found");
-					break;
-				}
+    }
 
-				else if(result.getKey()!=null) {
-					System.out.println("City: "+result.getKey()+" Count: "+result.getValue().stream().count()+" Contacts: "+result.getValue());
-				}
-			}
-		}
-		else
-			System.out.println("No Records Found");
-	}
-	@Override
-	public void showAllContactsInAllState(Map<String, AddressBook> addressBooks) {
-		List<Contacts> contactsInState = new ArrayList<>();
-		Multimap<String, String> stateContacts = ArrayListMultimap.create();
-		for (Entry<String, AddressBook> entry : addressBooks.entrySet()) {
-			entry.getValue().contacts.stream()
-			.forEach(contactsInState::add);
-		}
-		contactsInState.stream()
-		.forEach(contact -> {stateContacts.put(contact.getState(), contact.getFirstName()+" "+contact.getLastName());});
-		if(stateContacts.size()>0) {
-			for(Entry<String,Collection<String>> result : stateContacts.asMap().entrySet()) {
-				if(result.getValue().size()==0 && result.getKey()!=null) {
-					System.out.println(result.getKey()+": No Contacts Found");
-					break;
-				}
+    @Override
+    public AddressBook getAddressBook(String addressbookName) {
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
 
-				else if(result.getKey()!=null) {
-					System.out.println("State: "+result.getKey()+" Count: "+result.getValue().stream().count()+" Contacts: "+result.getValue());
-				}
-			}
-		}
-		else
-			System.out.println("No Records Found");
-	}
 
-	@Override
-	public void console() {
+        for (int index = 0; index < addressbookList.size(); index++) {
 
-		System.out.println();
-		System.out.print("Number Of Address Books:");
-		int numberOfAddressBooks = AddressBookMain.scanner.nextInt();
-		if(numberOfAddressBooks <= 0) {
-			System.out.println("No Address Books Found");
-			System.exit(0);
-		}
+            if (addressbookList.get(index).getAddressBookName().equals(addressbookName)) {
+                return addressbookList.get(index);
+            }
+        }
 
-		Map<String, AddressBook> addressBooks = new HashMap<String, AddressBook>();
-		for(int iterator = 1; iterator<=numberOfAddressBooks; iterator++) {
-			System.out.print("Name of Address Books "+iterator+":");
-			String nameOfAddressBooks = AddressBookMain.scanner.next();
-			AddressBook addressBook = new AddressBook();
-			addressBooks.put(nameOfAddressBooks, addressBook);
-		}
-		AddressBookIF addressBookOperations = new AddressBookImpl();
-		ContactsIF contacts = new ContactsImpl();
-		AddressBook addressBook = null;
-		do {
-			int exitFlag=0;
-			System.out.println("[1] Select Active Address Book\n[2] Contact operations\n[3] See contacts in a city or state\n[4] See contacts in all cities or states\n[5] Exit");
-			System.out.print("Enter Choice: "); 
-			int addressChoice = AddressBookMain.scanner.nextInt();
-			switch(addressChoice) {
-			case 1: addressBook = selectAddressBook(addressBooks, addressBookOperations);
-			break;
-			case 2:
-				if(addressBook==null) {
-					System.out.println("Select Active Address Book!");
-					break;
-				}
-				contactOperations(addressBooks, addressBookOperations, contacts, addressBook, exitFlag);
-				break;
-			case 3:seeContactsInGivenCityOrState(addressBooks, addressBookOperations, exitFlag);
-			break;
-			case 4:seeContactsInAllCityOrState(addressBooks, addressBookOperations, exitFlag);
-			break;
-			case 5: exitProgram();
-			break;
-			default: System.out.println("Invalid Choice!");
-			}
-		}while(true);
+        return null;
+    }
 
-	}
 
-	private void contactOperations(Map<String, AddressBook> addressBooks, AddressBookIF addressBookOperations,
-			ContactsIF contacts, AddressBook addressBook, int exitFlag) {
-		while(exitFlag == 0) {
+    @Override
+    public int hasContact(String number, String addressbookName) {
+        int givenContactIndex = -1;
 
-			System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
-			System.out.println("[1] Add Contact\n[2] Edit Contact\n[3] Delete Contact\n[4] Print Contacts\n[5] Print Sorted Contacts\n[6] Read from file or Write to file\n[7] Back");
-			System.out.print("Enter Choice: "); 
-			int contactsChoice = AddressBookMain.scanner.nextInt();
-			switch(contactsChoice) {
-			case 1:  
-				System.out.print("Number Of Contacts:");
-				int numberOfContacts = AddressBookMain.scanner.nextInt();
-				for(int iterator = 1; iterator<=numberOfContacts; iterator++) {
-					System.out.println("Enter Contact "+iterator+" Details: ");
-					contacts.addContact(addressBook);
-				} 
-				break;
-			case 2:contacts.editContact(addressBook);
-			break;
-			case 3:contacts.deleteContact(addressBook);
-			break;
-			case 4: contacts.printContact(addressBook);
-			break;
-			case 5: contacts.sortedContacts(addressBook);
-			break;
-			case 6:exitFlag = fileIO(addressBooks, addressBook, exitFlag);
-			break;
-			case 7:exitFlag=1;
-			break;
-			default: System.out.println("Invalid Choice!");
-			}
-		}
-	}
+        AddressBook addressbook = getAddressBook(addressbookName);
+        List < Contact > contactList = addressbook.getContactList();
+        for (int index = 0; index < contactList.size(); index++) {
 
-	private int fileIO(Map<String, AddressBook> addressBooks, AddressBook addressBook, int exitFlag) {
-		System.out.println("[1]Read contacts from text file\n[2]Write Contacts to text file\n[3]Read contacts from csv file\n[4]Write Contacts to csv file\n[5]Read contacts from json file\n[6]Write Contacts to json file\n[7]DB operations\n[8] Back");
-		System.out.print("Enter Choice: "); 
-		int fileChoice = AddressBookMain.scanner.nextInt();
-		AddressBookIO addressBookFileIO = new AddressBookIO(); 
+            if (contactList.get(index).getPhoneNumber().equals(number)) {
+                givenContactIndex = index;
 
-		while(exitFlag==0) {
-			switch(fileChoice) {
-			case 1: addressBookFileIO.readFromFile(addressBooks,addressBook, IOService.FILE_IO );
-			exitFlag=1;
-			break;
-			case 2: addressBookFileIO.writeToFile(addressBooks,addressBook, IOService.FILE_IO);
-			exitFlag=1;
-			break;
-			case 3: addressBookFileIO.readFromFile(addressBooks,addressBook, IOService.CSV_IO);
-			exitFlag=1;
-			break;
-			case 4: addressBookFileIO.writeToFile(addressBooks,addressBook, IOService.CSV_IO);
-			exitFlag=1;
-			break;
-			case 5: addressBookFileIO.readFromFile(addressBooks,addressBook, IOService.JSON_IO);
-			exitFlag=1;
-			break;
-			case 6: addressBookFileIO.writeToFile(addressBooks,addressBook, IOService.JSON_IO);
-			exitFlag=1;
-			break;
-			case 7: exitFlag = dbOperations(addressBooks, addressBook, exitFlag);
-			break;
-			case 8:exitFlag=1;
-			break;
-			default:System.out.println("Invalid Choice");
-			}
-		}
-		return exitFlag;
-	}
+            }
+        }
+        return givenContactIndex;
+    }
 
-	private int dbOperations(Map<String, AddressBook> addressBooks, AddressBook addressBook, int exitFlag) {
+    @Override
+    public void addNewContact(Contact person, String addressbookName) {
+        AddressBook addressbook = getAddressBook(addressbookName);
+        List < Contact > contactList = addressbook.getContactList();
 
-		System.out.println("[1]Read contacts from Database\n[2]Print All Queries\n[3]Exit");
-		System.out.print("Enter Choice: "); 
-		int searchChoice = AddressBookMain.scanner.nextInt();
-		AddressBookJdbcService jdbcService = new AddressBookJdbcService();
-		AddressBookIF addressBookOperations = new AddressBookImpl();
-		String addressBookName = addressBookOperations.getKey(addressBooks, addressBook);
-		String city = "Los Santos";
-		String state = "San Andreas";
-		String type = "Friend";
-		while(exitFlag==0) {
-			switch(searchChoice) {
-			case 1:System.out.println(); 
-			jdbcService.readContactList(addressBookName);
-			exitFlag=1;
-			break;
-			case 2:System.out.println(); 
-			jdbcService.readContactListOfCity(city);
-			System.out.println();
-			jdbcService.readContactListOfState(state);
-			System.out.println();
-			jdbcService.countOfContactsInGivenStateCity(city, state, addressBookName);
-			System.out.println();
-			jdbcService.getSortedContactByName(city);
-			System.out.println();
-			jdbcService.countOfContactsInGivenType(type);
-			System.out.println();
-			jdbcService.readContactListByType(type);
-			System.out.println();
-			exitFlag=1;
-			break;
-			case 3:exitFlag=1;
-			break;
-			default:System.out.println("Invalid Choice");
-			}
-		}
-		return exitFlag;
-	}
+        contactList.add(person);
+        @SuppressWarnings("unused")
+		Stream < Contact > stream = contactList.stream().distinct();
 
-	private void seeContactsInGivenCityOrState(Map<String, AddressBook> addressBooks,
-			AddressBookIF addressBookOperations, int exitFlag) {
-		System.out.println("[1]Show contacts in city\n[2]Show contacts in state\n[3]Back");
-		System.out.print("Enter Choice: "); 
-		int searchChoice = AddressBookMain.scanner.nextInt();
-		while(exitFlag==0) {
-			switch(searchChoice) {
-			case 1:System.out.print("Enter City: "); 
-			String searchByCity = AddressBookMain.scanner.next();
-			addressBookOperations.showContactsInGivenCity(searchByCity, addressBooks);
-			exitFlag=1;
-			break;
-			case 2: System.out.print("Enter State: ");  
-			String searchByState = AddressBookMain.scanner.next();
-			addressBookOperations.showContactsInGivenState(searchByState, addressBooks);
-			exitFlag=1;
-			break;
-			case 3:exitFlag=1;
-			break;
-			default:System.out.println("Invalid Choice");
-			}
-		}
-	}
+        contactList = contactList.stream()
+            .distinct()
+            .collect(Collectors.toList());
 
-	private void seeContactsInAllCityOrState(Map<String, AddressBook> addressBooks, AddressBookIF addressBookOperations,
-			int exitFlag) {
-		System.out.println("[1]Show contacts in all cities\n[2]Show contacts in all states\n[3]Back");
-		System.out.print("Enter Choice: "); 
-		int printChoice = AddressBookMain.scanner.nextInt();
-		while(exitFlag==0) {
-			switch(printChoice) {
-			case 1:addressBookOperations.showAllContactsInAllCity(addressBooks);
-			exitFlag=1;
-			break;
-			case 2: addressBookOperations.showAllContactsInAllState(addressBooks);
-			exitFlag=1;
-			break;
-			case 3:exitFlag=1;
-			break;
-			default:System.out.println("Invalid Choice");
-			}
-		}
-	}
+        addressbook.setContactList(contactList);
 
-	private void exitProgram() {
-		AddressBookMain.scanner.close(); 
-		System.exit(0);
-	}
 
-	private AddressBook selectAddressBook(Map<String, AddressBook> addressBooks, AddressBookIF addressBookOperations) {
-		AddressBook addressBook;
-		addressBook = addressBookOperations.selectActiveAddressBook(addressBooks);
-		if(addressBook == null)
-			System.out.println("No Address Books Present");
-		else
-			System.out.println("Active Address Book Name: "+addressBookOperations.getKey(addressBooks, addressBook));
-		return addressBook;
-	}
+    }
+
+    @Override
+    public void editContact(String number, String editInfo, String choice, String addressbookName) {
+        AddressBook addressbook = getAddressBook(addressbookName);
+
+
+        List < Contact > contactList = addressbook.getContactList();
+
+        int contactIndex = hasContact(number, addressbookName);
+        if (contactIndex >= 0)
+            switch (choice) {
+
+                case "address":
+                    contactList.get(contactIndex).getContactAddress().setAddress(editInfo);
+                    break;
+                case "city":
+                    contactList.get(contactIndex).getContactAddress().setCity(editInfo);
+                    break;
+                case "state":
+                    contactList.get(contactIndex).getContactAddress().setState(editInfo);
+                    break;
+                case "zip":
+                    contactList.get(contactIndex).getContactAddress().setZip(editInfo);
+                    break;
+                case "phoneNumber":
+                    contactList.get(contactIndex).setPhoneNumber(editInfo);
+                    break;
+                case "email":
+                    contactList.get(contactIndex).setEmail(editInfo);
+                    break;
+
+            }
+
+        System.out.println("After editing the details are:");
+        displayContactInfo(number, addressbookName);
+
+    }
+
+    @Override
+    public void deleteContact(String number, String addressbookName)
+
+    {
+        AddressBook addressbook = getAddressBook(addressbookName);
+
+        List < Contact > newlist = addressbook.getContactList();
+        int contactIndex = hasContact(number, addressbookName);
+        if (contactIndex >= 0) {
+
+            newlist.remove(contactIndex);
+        }
+
+    }
+
+
+    @Override
+    public void displayContactInfo(String number, String addressbookName)
+
+    {
+        AddressBook addressbook = getAddressBook(addressbookName);
+
+        List < Contact > contactList = addressbook.getContactList();
+
+        int contactIndex = hasContact(number, addressbookName);
+        if (contactIndex >= 0) {
+            Contact contact = contactList.get(contactIndex);
+            System.out.println("address:" + contact.getContactAddress().getAddress());
+            System.out.println("city:" + contact.getContactAddress().getCity());
+            System.out.println("state:" + contact.getContactAddress().getState());
+            System.out.println("zip:" + contact.getContactAddress().getZip());
+            System.out.println("phone number:" + contact.getPhoneNumber());
+            System.out.println("email:" + contact.getEmail());
+
+        }
+
+
+    }
+
+    @Override
+    public void searchPersonByState(String givenName, String state, PrintStream...printStreamObject) {
+
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        System.out.println("all contacts in given name in given state are:");
+        addressbookList.stream()
+            .forEach(addressBook -> addressBook.getContactList()
+                .stream().filter(contact -> contact.getContactAddress().getState().equals(state) && contact.getFirstName().equals(givenName))
+                .forEach(object -> printStreamObject[0].println(object)));
+    }
+
+
+    @Override
+    public void searchPersonByCity(String givenName, String city, PrintStream...printStreamObject) {
+
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        System.out.println("all contacts in given name in given city are:");
+        addressbookList.stream()
+            .forEach(addressBook -> addressBook.getContactList()
+                .stream().filter(contact -> contact.getContactAddress().getCity().equals(city) && contact.getFirstName().equals(givenName))
+                .forEach(contact -> printStreamObject[0].println(contact)));
+
+    }
+
+    @Override
+    public void getAllContactsInState(String state, PrintStream...printStreamObject) {
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        System.out.println("all contacts in given state are:");
+        addressbookList.stream()
+            .forEach(addressBook -> addressBook.getContactList()
+                .stream().filter(contact -> contact.getContactAddress().getState().equals(state)).forEach(contact -> printStreamObject[0].println(contact)));
+
+    }
+    @Override
+    public void getAllContactsInCity(String city, PrintStream...printStreamObject) {
+
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        System.out.println("all contacts in given city are:");
+        addressbookList.stream()
+            .forEach(addressBook -> addressBook.getContactList()
+                .stream().filter(contact -> contact.getContactAddress().getCity().equals(city)).forEach(contact -> printStreamObject[0].println(contact)));
+
+    }
+    @Override
+    public void countPeopleinCity(String city, PrintStream...printStreamObject) {
+
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        addressbookList.stream()
+            .forEach(addressBook -> System.out.println("Number of contacts of given city in addressbook" + addressBook.getAddressBookName() + " is" + addressBook.getContactList()
+                .stream().filter(contact -> contact.getContactAddress().getCity().equals(city)).count()));
+
+
+    }
+
+
+    @Override
+    public void countPeopleinState(String state, PrintStream...printStreamObject) {
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        addressbookList.stream()
+            .forEach(addressBook -> System.out.println("Number of contacts of given state in addressbook" + addressBook.getAddressBookName() + " is" + addressBook.getContactList()
+                .stream().filter(contact -> contact.getContactAddress().getState().equals(state)).count()));
+
+    }
+
+    @Override
+    public void sortByName(PrintStream...printStreamObject) {
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        System.out.println("Sorting contacts by fist name:");
+        addressbookList.stream()
+            .forEach(addressBook -> addressBook.getContactList()
+                .stream().sorted((person1, person2) -> person1.getFirstName().compareTo(person2.getFirstName())).forEach(contact -> printStreamObject[0].println(contact)));
+    }
+
+    @Override
+    public void sortByCity(PrintStream...printStreamObject) {
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        System.out.println("Sorting contacts by  city:");
+        addressbookList.stream()
+            .forEach(addressBook -> addressBook.getContactList()
+                .stream().sorted((person1, person2) -> person1.getContactAddress().getCity().compareTo(person2.getContactAddress().getCity())).forEach(contact -> printStreamObject[0].println(contact)));
+    }
+
+    @Override
+    public void sortByState(PrintStream...printStreamObject) {
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        System.out.println("Sorting contacts by  state");
+        addressbookList.stream()
+            .forEach(addressBook -> addressBook.getContactList()
+                .stream().sorted((person1, person2) -> person1.getContactAddress().getState().compareTo(person2.getContactAddress().getState())).forEach(contact -> printStreamObject[0].println(contact)));
+    }
+
+    @Override
+    public void sortByZip(PrintStream...printStreamObject) {
+        List < AddressBook > addressbookList = addressbookSystem.getAddressbookList();
+
+        System.out.println("Sorting contacts by  zip:");
+        addressbookList.stream()
+            .forEach(addressBook -> addressBook.getContactList()
+                .stream().sorted((person1, person2) -> person1.getContactAddress().getZip().compareTo(person2.getContactAddress().getZip())).forEach(contact -> printStreamObject[0].println(contact)));
+    }
+    @Override
+    public List < Contact > getContactList(String addressbookName) {
+        AddressBook addressbook = getAddressBook(addressbookName);
+
+        List < Contact > contactList = addressbook.getContactList();
+
+        return contactList;
+    }
+    @Override
+    public void writeContactsOfAddressBook(IOService ioService, String addressbookName, FileType...fileType) throws IOException, CsvException {
+        if (ioService.equals(IOService.CONSOLE_IO))
+            System.out.println("\nWriting contact list  info to console:\n " + this.getContactList(addressbookName));
+        else if (ioService.equals(IOService.FILE_IO)) {
+            new AddressBookFileIOService().writeData(this.getContactList(addressbookName), fileType[0], this.addressbookSystem);
+        }
+
+    }
+    @Override
+    public void printData(IOService ioService, FileType...fileType) throws IOException, CsvException {
+        if (ioService.equals(IOService.FILE_IO)) {
+            new AddressBookFileIOService().printData(fileType[0]);
+        }
+
+    }
+    @Override
+
+    public long countEntries(IOService ioService, FileType...fileType) throws IOException, CsvException {
+
+        if (ioService.equals(IOService.FILE_IO)) {
+            return new AddressBookFileIOService().countEntries(fileType[0]);
+        }
+
+        return 0;
+    }
+
+    @Override
+    public List < AddressBook > readContactListDataFromJSON() throws IOException, CsvException {
+        AddressBookFileIOService addressbookFileIOService = new AddressBookFileIOService();
+
+        return addressbookFileIOService.readData();
+
+    }
+
+    @Override
+    public List < Contact > readContactListData(IOService ioService, String addressbookName, FileType...fileType) throws IOException, CsvException {
+
+        if (ioService.equals(IOService.FILE_IO)) {
+            AddressBookFileIOService addressbookFileIOService = new AddressBookFileIOService();
+
+            this.getAddressBook(addressbookName).setContactList(addressbookFileIOService.readData(fileType[0]));
+
+
+        }
+
+        return this.getAddressBook(addressbookName).getContactList();
+    }
+    @Override
+    public List < ContactDTO > readContactListDataFromDB(String addressbookName) throws AddressBookException {
+        this.contactListDTO = new AddressBookJdbcService().readContactList(addressbookName);
+        return this.contactListDTO;
+
+    }
+
+    @Override
+    public List < ContactDTO > readContactListOfState(IOService ioService, String state) {
+        if (ioService.equals(IOService.DB_IO)) {
+            return new AddressBookJdbcService().readContactListOfState(state);
+
+        }
+
+        return null;
+    }
+
+    @Override
+    public int countOfContactsInGivenStateCity(IOService ioService, String city, String state, String addressBook) {
+        if (ioService.equals(IOService.DB_IO)) {
+            return new AddressBookJdbcService().countOfContactsInGivenStateCity(city, state, addressBook);
+
+        }
+
+        return 0;
+    }
+
+    @Override
+    public List < String > getSortedContactByName(IOService ioService, String city) throws AddressBookException
+
+    {
+        if (ioService.equals(IOService.DB_IO)) {
+            return new AddressBookJdbcService().getSortedContactByName(city);
+
+        }
+
+        return null;
+    }
+    @Override
+    public int countOfContactsInGivenType(IOService ioService, String type) {
+        if (ioService.equals(IOService.DB_IO)) {
+            return new AddressBookJdbcService().countOfContactsInGivenType(type);
+
+        }
+        return 0;
+    }
+
+    @Override
+    public ContactDTO getContact(String name) {
+        ContactDTO contact;
+        contact = this.contactListDTO.stream()
+            .filter(contactItem -> contactItem.getFirstName().equals(name))
+            .findFirst()
+            .orElse(null);
+
+        return contact;
+
+    }
+    @Override
+    public boolean checkContactInSyncWithDB(String name) {
+        List < ContactDTO > contactList = addressBookDBService.getContactData(name);
+        return contactList.get(0).equals(this.getContact(name));
+    }
+
+    @Override
+    public void addContact(Contact contact, String addressBookName, LocalDate date) {
+
+        contactListDTO.add(addressBookDBService.addContact(contact, addressBookName, date));
+
+
+    }
+    @Override
+    public void setUpDataBase() throws FileNotFoundException, SQLException {
+        addressBookDBService.setupDatabase();
+
+    }
+
+    @Override
+    public int countOfContactsAddedInGivenDateRange(IOService ioService, String startDate, String endDate) {
+        if (ioService.equals(IOService.DB_IO)) {
+            return addressBookDBService.countOfContactsAddedInGivenDateRange(startDate, endDate);
+
+
+        }
+
+
+        return 0;
+    }
+
+    @Override
+    public int countOfContacts(IOService ioService) {
+        if (ioService.equals(IOService.DB_IO)) {
+            return addressBookDBService.countOfContactsInDataBase();
+
+        }
+        return 0;
+    }
+    @Override
+    public void updateContactPhoneNumber(IOService ioService, Contact contact, String phoneNumber) {
+        if (ioService.equals(IOService.DB_IO)) {
+            int result = addressBookDBService.updateContactPhoneNumber(contact, phoneNumber);
+            if (result == 0) return;
+            ContactDTO contactInMemory = this.getContact(contact.getFirstName());
+            if (contactInMemory != null) {
+                contactInMemory.setPhoneNumber(phoneNumber);
+
+            }
+        }
+    }
 }
