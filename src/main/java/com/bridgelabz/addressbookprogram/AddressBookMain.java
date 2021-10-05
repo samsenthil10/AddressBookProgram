@@ -1,15 +1,14 @@
 package com.bridgelabz.addressbookprogram;
 
-import java.util.Scanner;
+import java.io.IOException;
+
+import com.opencsv.exceptions.CsvException;
 
 public class AddressBookMain {
 
-	public static Scanner scanner = new Scanner(System.in);
-
-	public static void main(String[] args) {
-
-		System.out.println("----------Welcome To Address Book Program----------");	
-		AddressBookIF addressBookOperations = new AddressBookImpl();
-		addressBookOperations.console();
+	public static void main(String[] args) throws IOException, CsvException {
+		
+		AddressBookConsole menu = new AddressBookConsole();
+		menu.performOperations();
 	}
 }
