@@ -9,6 +9,12 @@ build
 .project
 .settings/
 bin/
-gradlew
 gradlew.bat
 settings.gradle
+*.json
+*.txt
+*.csv
+csv/
+json/
+txt/
+*.sql
